@@ -86,9 +86,17 @@ For change specs: tag fields as (NEW), (MODIFIED), or (EXISTING — unchanged).
 
 ## File Usage
 
-| File Name | Type (I/O/U) | Key Field(s) | Description |
+| File Name | Type (I/O/U) | Key Field(s) | Access Pattern | Description |
 
 - **Key Field(s)**: Critical for test data setup and impact analysis.
+- **Access Pattern**: Declares the expected record cardinality for each key access. This
+  directly controls which I/O opcode pattern the Code Generator will use:
+  - **1:1** — unique key, single record expected → `CHAIN`
+  - **1:N** — partial key, multiple records expected → `SETLL` + `READE` loop
+  - **Sequential** — full-file sequential read → `READ` loop
+  If the key is a partial key (e.g., order number against an order-detail file where
+  multiple detail lines exist per order), always mark **1:N**. If unsure whether the key
+  is unique, mark `TBD (1:1 or 1:N — confirm key uniqueness)` and add to Open Questions.
 
 REQUIRED at L2 and L3. CONDITIONAL at L1 (include if file access changes).
 
@@ -123,8 +131,9 @@ Numbered steps. One logical action per step.
 
 Step notation:
 - `IF condition → action (BR-xx)`
-- `FOR EACH record in <file> → <action>`
+- `FOR EACH record in <file> by <key> → <action>` (use when File Usage shows 1:N access)
 - `IF condition → action / ELSE → alternative`
+- `READ <file> by <key>` (use when File Usage shows 1:1 access)
 
 Additional rules:
 - Every file operation names the file and key

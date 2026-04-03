@@ -254,8 +254,13 @@ irrelevant, omit them entirely (do not write `N/A`). Maintain section order as l
 
 ## File Usage
 
-| File Name | Type (I/O/U) | Key Field(s) | Description |
-|-----------|--------------|-------------|-------------|
+| File Name | Type (I/O/U) | Key Field(s) | Access Pattern | Description |
+|-----------|--------------|-------------|----------------|-------------|
+
+Access Pattern values:
+- **1:1** — unique key, single record expected (maps to `CHAIN`)
+- **1:N** — partial key, multiple records expected (maps to `SETLL` / `READE` loop)
+- **Sequential** — full-file read (maps to `READ` loop)
 
 ---
 
@@ -410,7 +415,8 @@ at the current Spec Level.
 - [ ] Interface Contract defines all parameters with type, length, and valid values
 - [ ] Return Code Definition covers every possible return value
 - [ ] Traceability Matrix includes every BR-xx with no gaps
-- [ ] File Usage includes key field(s) for each file
+- [ ] File Usage includes key field(s) and Access Pattern (1:1 / 1:N / Sequential) for each file
+- [ ] Main Logic uses `FOR EACH` notation for files with 1:N access pattern
 
 **L3 only:**
 - [ ] Caller Context is populated or explicitly TBD

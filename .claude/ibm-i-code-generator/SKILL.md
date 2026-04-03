@@ -128,7 +128,7 @@ Map the Program Spec to code before generating:
 | Business Rules | Conditional logic anchors and trace comments |
 | Interface Contract | Entry parameters, return code contract, call signature |
 | Data Contract | Variable/data structure declarations and read/write intent |
-| File Usage | File declarations and record access points |
+| File Usage | File declarations, record access points, and I/O pattern selection (1:1 → CHAIN, 1:N → SETLL/READE loop, Sequential → READ loop) |
 | External Program Calls | CALL points and passed parameters |
 | Program Processing / Main Logic | Ordered implementation flow |
 | Error Handling | Return codes, message handling, rollback/stop behavior |
@@ -435,6 +435,39 @@ but the full current source is unavailable, prefer a **targeted change block**:
 - Mark it as a controlled draft rather than a verified drop-in replacement
 - Match the required RPGLE source format policy for the target program
 
+### File Access Pattern Rule
+
+The Program Spec's File Usage section declares an **Access Pattern** for each file key.
+This access pattern directly controls which I/O opcode pattern to generate:
+
+| Access Pattern | Spec Main Logic Cue | RPGLE Native I/O Pattern | Embedded SQL Pattern |
+|----------------|---------------------|--------------------------|---------------------|
+| **1:1** (unique key) | "Read record", "Chain", `READ <file> by <key>` | `CHAIN key FILE` | `SELECT INTO ... WHERE key = :hostvar` (expects single row) |
+| **1:N** (partial key) | "For each record", "Process all matching", `FOR EACH record in <file> by <key>` | `SETLL key FILE` + `READE key FILE` / `DOW NOT %EOF` loop | `DECLARE CURSOR` + `FETCH` loop, or `FOR` cursor loop |
+| **Sequential** | "Read all records", "Process file" | `READ FILE` / `DOW NOT %EOF` loop | `DECLARE CURSOR` (no WHERE or broad WHERE) + `FETCH` loop |
+
+**Critical rule:** When the spec's File Usage shows **1:N** for a file/key combination, **never**
+generate a single `CHAIN` — always generate a `SETLL` + `READE` loop (native I/O) or a cursor
+loop (embedded SQL). A `CHAIN` only reads the first matching record and silently drops the rest.
+
+**RPGLE native I/O — 1:N pattern:**
+
+```rpgle
+// SETLL + READE loop for 1:N access
+setll KEY FILE;
+reade KEY FILE;
+dow not %eof(FILE);
+  // process record
+  reade KEY FILE;
+enddo;
+```
+
+**Ambiguity handling:** If File Usage does not include an Access Pattern column (e.g., the spec
+was written before this convention) but Main Logic uses "for each" / "process all matching" /
+loop language, treat as 1:N. If Main Logic says "read" or "chain" with no loop language, treat
+as 1:1. If still ambiguous, generate a `TODO` comment noting the ambiguity and default to the
+safer 1:N pattern.
+
 ### Existing Style Preservation Rule
 
 When current source or a style reference is provided, preserve:
@@ -521,6 +554,7 @@ Before outputting code, confirm each applicable rule:
 - [ ] Interface Contract is reflected in parameters and return handling
 - [ ] Error Handling rules are represented in code or explicit placeholders
 - [ ] External calls and file usage appear only if supported by the Program Spec
+- [ ] File access I/O pattern matches the spec's Access Pattern (1:1 → CHAIN, 1:N → SETLL/READE loop, Sequential → READ loop)
 - [ ] Open Questions / TBD items were not silently implemented
 - [ ] Output stays code-first and does not drift into a replacement spec
 - [ ] No orphaned declarations — every declared file, variable, and data structure is
@@ -560,6 +594,7 @@ Before outputting code, confirm each applicable rule:
 - `references/change-output-modes.md` — Read when choosing between `Full Implementation`, `Skeleton`, and `Change Block` output.
 - `references/clle-enhancement-patterns.md` — Read for `CLLE` enhancement work and existing-source style preservation.
 - `examples/sample-rpgle-new-free.md` — Example of a new free-format RPGLE member generated from a complete Program Spec.
+- `examples/sample-rpgle-setll-reade-loop.md` — Example of CHAIN (1:1) vs SETLL/READE loop (1:N) side by side, demonstrating Access Pattern–driven I/O selection.
 - `examples/sample-rpgle-existing-fixed-change-block.md` — Example of a fixed-format RPGLE change block when full current source is unavailable.
 - `examples/sample-rpgle-mixed-touched-region.md` — Example of local touched-region preservation in mixed-format RPGLE.
 - `examples/sample-rpgle-embedded-sql.md` — Example of RPGLE embedded SQL generation when the Program Spec explicitly supports SQL access.
