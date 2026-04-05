@@ -3,15 +3,16 @@ name: ibm-i-workflow-orchestrator
 description: >
   Orchestrates the IBM i (AS/400) skill chain by identifying the user's current artifact stage,
   desired outcome, and safest next step across requirement normalization, functional spec,
-  technical design, program spec, code generation, spec review, and code review. V1.0 —
-  workflow routing and gatekeeping for RPGLE and CLLE delivery. Use this skill whenever a user
-  asks what to do next, how to move from requirement to spec or code, which IBM i skill should
-  be used, whether a stage can be skipped, or wants end-to-end orchestration for AS/400, iSeries,
-  IBM i, RPGLE, or CLLE work. This is an orchestration skill — it routes and sequences work; it
-  does not replace the generation or review skills themselves.
+  technical design, program spec, file spec, code generation, DDS generation, spec review, DDS
+  review, and code review. V1.1 — workflow routing and gatekeeping for RPGLE, CLLE, and DDS
+  delivery with two complete pipelines (program chain and file chain). Use this skill whenever a
+  user asks what to do next, how to move from requirement to spec or code, which IBM i skill
+  should be used, whether a stage can be skipped, or wants end-to-end orchestration for AS/400,
+  iSeries, IBM i, RPGLE, CLLE, or DDS work. This is an orchestration skill — it routes and
+  sequences work; it does not replace the generation or review skills themselves.
 ---
 
-# IBM i Workflow Orchestrator (V1.0)
+# IBM i Workflow Orchestrator (V1.1)
 
 Routes IBM i (AS/400) work to the correct skill in the correct order. The output is a routing
 decision and next-step execution guidance — not a replacement spec, not a review report, and
@@ -27,17 +28,14 @@ Requirement Normalizer
 Functional Spec
    ↓
 Technical Design
-   ↓
-Program Spec
-   ↓
-Code Generation
-   ↓
-Code Review
+   ├──→ Program Spec → Code Generation → Code Review       (Program Chain)
+   └──→ File Spec → DDS Generation → DDS Review            (File Chain)
 ```
 
 Supporting gates:
-- `ibm-i-spec-reviewer` may be used after Requirement Normalizer, Functional Spec, Technical Design, or Program Spec
-- `ibm-i-code-reviewer` may be used after generated or manually written code
+- `ibm-i-spec-reviewer` may be used after any spec artifact (Requirement Normalizer, Functional Spec, Technical Design, Program Spec, or File Spec)
+- `ibm-i-dds-reviewer` may be used after generated or manually written DDS source
+- `ibm-i-code-reviewer` may be used after generated or manually written RPGLE/CLLE code
 
 This skill exists to prevent two common failures:
 1. starting too deep in the chain without enough upstream definition
@@ -89,6 +87,10 @@ Classify what the user currently has:
 | Business behavior, FR-nn, BR-xx, Current/Future Behavior, Acceptance Criteria | Functional Spec |
 | Module allocation, processing stages, object interactions, interface/dependency design | Technical Design |
 | Main Logic steps, Data Contract, Interface Contract, Traceability Matrix | Program Spec |
+| Field definitions, record formats, key specs, DDS keywords, JSON Layer 2 contract | File Spec |
+| File Spec JSON with fileType, fieldDefinitions, keyDefinition — ready for DDS generation | File Spec JSON (ready for DDS) |
+| DDS source code (QDDSSRC) — PF, LF, PRTF, or DSPF member | DDS Source |
+| Existing RPGLE or CLLE source + change request (user wants to understand impact before specifying) | Existing Source + CR (impact analysis candidate) |
 | RPGLE or CLLE source code, change block, or member patch | Code |
 
 If the stage is ambiguous, identify the most likely stage conservatively and note what makes it unclear.
@@ -100,11 +102,15 @@ Determine what the user is trying to accomplish:
 | User Goal | Desired Outcome |
 |-----------|-----------------|
 | Clean up or structure messy request | Requirement Normalizer |
+| Understand existing program + assess change impact | Impact Analysis |
 | Formalize business behavior and scope | Functional Spec |
 | Define technical approach and impacted objects | Technical Design |
 | Produce implementation-ready logic | Program Spec |
+| Define file objects (PF, LF, PRTF, DSPF) | File Spec |
+| Generate DDS source from a File Spec | DDS Generation |
 | Generate RPGLE or CLLE source | Code Generation |
 | Validate a spec artifact | Spec Review |
+| Validate DDS source against a File Spec | DDS Review |
 | Validate code against a Program Spec | Code Review |
 
 If the user asks for "end-to-end", route to the next missing stage first rather than trying to
@@ -116,14 +122,20 @@ Use this decision table:
 
 | Current Stage | Desired Outcome | Route To | Notes |
 |---------------|-----------------|----------|-------|
+| Existing source + CR | Impact analysis before spec | `ibm-i-impact-analyzer` | Enhancement entry point — analyze existing program before specifying changes |
 | Raw Input | Any downstream spec/design work | `ibm-i-requirement-normalizer` | Start here unless the input is already well structured |
 | Requirement Normalizer output | Business scoping | `ibm-i-functional-spec` | Default next step |
-| Requirement Normalizer output | Design work | `ibm-i-technical-design` | Only if the normalized package already supports skipping Functional Spec |
+| Requirement Normalizer output | Design work | `ibm-i-technical-design` | Only if the Requirement Normalizer output already supports skipping Functional Spec |
 | Requirement Normalizer output | Program Spec | `ibm-i-program-spec` | Only if design is already understood and the package explicitly supports that jump |
-| Requirement Normalizer / Functional Spec / Technical Design / Program Spec | Validation | `ibm-i-spec-reviewer` | Use for quality gates and readiness checks |
+| Requirement Normalizer output / Functional Spec / Technical Design / Program Spec / File Spec | Validation | `ibm-i-spec-reviewer` | Use for quality gates and readiness checks |
 | Functional Spec | Technical approach | `ibm-i-technical-design` | Normal downstream move |
 | Technical Design | Implementation-ready logic | `ibm-i-program-spec` | Normal downstream move |
-| Program Spec | Source code | `ibm-i-code-generator` | Preferred handoff to code |
+| Technical Design | File object definitions (PF, LF, PRTF, DSPF) | `ibm-i-file-spec` | Parallel to Program Spec — use when the request is about file structure, not program logic |
+| Raw Input / Requirement Normalizer output | File definition (user mentions PF, LF, DSPF, PRTF, DDS, "add field", "new file") | `ibm-i-file-spec` | Only route directly when the request is primarily about file structure/object definition and does not require unresolved program-behavior design first |
+| File Spec | DDS source code | `ibm-i-dds-generator` | File chain: spec → DDS |
+| File Spec JSON | DDS source for PF, LF, PRTF, or DSPF | `ibm-i-dds-generator` | Route when File Spec JSON (Layer 2) is available |
+| Program Spec | Source code | `ibm-i-code-generator` | Program chain: spec → code |
+| DDS Source | DDS validation against File Spec | `ibm-i-dds-reviewer` | Preferred DDS gate |
 | Code | Implementation validation | `ibm-i-code-reviewer` | Preferred code gate |
 
 ### Step 4 — Enforce Stage-Skipping Rules
@@ -133,9 +145,9 @@ would have contributed.
 
 #### Safe Skip Examples
 
-- Requirement Normalizer → Technical Design
-  only if functional scope is already agreed and the normalized package clearly supports design
-- Requirement Normalizer → Program Spec
+- Requirement Normalizer output → Technical Design
+  only if functional scope is already agreed and the Requirement Normalizer output clearly supports design
+- Requirement Normalizer output → Program Spec
   only if design is already understood and the package explicitly supports that jump
 - Program Spec → Code Generation
   normal and expected
@@ -144,8 +156,10 @@ would have contributed.
 
 - Raw Input → Code Generation
 - Raw Input → Program Spec without enough structured logic
+- Raw Input → DDS Generation without a File Spec
 - Functional Spec → Code Generation without a Program Spec
 - Technical Design → Code Review without code
+- Technical Design → DDS Review without DDS source
 
 If a skip is unsafe, say so clearly and route to the missing stage.
 
@@ -159,6 +173,8 @@ Use review skills when they materially reduce risk:
 | Functional Spec | `ibm-i-spec-reviewer` before Technical Design when business scope is still uncertain |
 | Technical Design | `ibm-i-spec-reviewer` before Program Spec when object allocation or impact is risky |
 | Program Spec | `ibm-i-spec-reviewer` before code generation when implementation risk is high |
+| File Spec | `ibm-i-spec-reviewer` before DDS generation when file definition is complex or critical |
+| Generated or manual DDS source | `ibm-i-dds-reviewer` before file creation/compilation |
 | Generated or manual code | `ibm-i-code-reviewer` before build/integration/test |
 
 Do not force review gates mechanically for trivial requests. Use them when they prevent real downstream risk.
@@ -181,7 +197,7 @@ Use short, structured routing output.
 ```
 ## Workflow Decision
 
-- **Current Stage:** <Raw Input / Requirement Normalizer / Functional Spec / Technical Design / Program Spec / Code>
+- **Current Stage:** <Raw Input / Requirement Normalizer output / Functional Spec / Technical Design / Program Spec / File Spec / File Spec JSON / DDS Source / Existing Source + CR / Code>
 - **Desired Outcome:** <what the user is trying to reach>
 - **Recommended Next Skill:** <skill name>
 - **Why:** <1–3 short sentences>
@@ -189,16 +205,17 @@ Use short, structured routing output.
 ## Routing Notes
 
 - **Can skip stages?** <Yes / No — state which and why>
-- **Recommended gate:** <none / ibm-i-spec-reviewer / ibm-i-code-reviewer — state why if recommended>
+- **Recommended gate:** <none / ibm-i-spec-reviewer / ibm-i-dds-reviewer / ibm-i-code-reviewer — state why if recommended>
 - **Minimum input needed next:** <what the next skill needs>
+- **Route Confidence:** <High / Medium / Low>
+- **Next Artifact Expected:** <artifact name>
 
-## Action
+## Next Step
 
-<Either:>
-- Proceed now with `<skill name>`
-
-<Or:>
-- Gather / confirm: <minimum missing item(s)>
+- **Invoke:** <skill name>
+- **Produce:** <next artifact>
+- **Blocking input:** <none / missing item>
+- **Execution decision:** <proceed now / stop and gather input>
 ```
 
 Keep this proportionate. For an obvious route, one short paragraph may be enough.
@@ -211,15 +228,26 @@ Keep this proportionate. For an obvious route, one short paragraph may be enough
 
 This skill routes work. It does not replace:
 - `ibm-i-requirement-normalizer`
+- `ibm-i-impact-analyzer`
 - `ibm-i-functional-spec`
 - `ibm-i-technical-design`
 - `ibm-i-program-spec`
+- `ibm-i-file-spec`
+- `ibm-i-dds-generator`
 - `ibm-i-code-generator`
 - `ibm-i-spec-reviewer`
+- `ibm-i-dds-reviewer`
 - `ibm-i-code-reviewer`
 
 If the correct downstream skill is clear and the user wants that work done now, use the
 downstream skill rather than stopping at routing commentary.
+
+### Execution Precedence Rule
+
+Resolve the boundary between orchestration-only routing and immediate downstream handoff:
+- if routing ambiguity is low and the downstream skill is clearly determined, the orchestrator may immediately hand off
+- if the user directly asked for a specific downstream artifact and the input is sufficient, prefer the downstream skill without stopping at orchestration commentary
+- use orchestration-only output when stage ambiguity, routing ambiguity, or missing-input risk is material
 
 ### Safest Sufficient Stage Rule
 
@@ -242,6 +270,7 @@ skipped stage. Skipping is justified by content maturity, not user impatience.
 
 Recommend review gates when they materially reduce risk:
 - route to `ibm-i-spec-reviewer` for spec-level uncertainty or non-standard downstream jumps
+- route to `ibm-i-dds-reviewer` before file creation/compilation for generated or manual DDS
 - route to `ibm-i-code-reviewer` before build/integration/test for generated or manual code
 
 Do not force reviewers into every trivial path.
@@ -263,12 +292,17 @@ Use this quick map:
 
 | If the user has... | And wants... | Route To |
 |--------------------|-------------|----------|
+| Existing source + CR | Impact analysis | `ibm-i-impact-analyzer` |
 | Messy request | Structured starting point | `ibm-i-requirement-normalizer` |
-| Normalized package | Business-functional scope | `ibm-i-functional-spec` |
+| Requirement Normalizer output | Business-functional scope | `ibm-i-functional-spec` |
 | Functional Spec | Technical structure | `ibm-i-technical-design` |
 | Technical Design | Implementation-ready logic | `ibm-i-program-spec` |
+| Technical Design | File definitions (PF/LF/PRTF/DSPF) | `ibm-i-file-spec` |
+| Any input | File structure / DDS / "add field" / "new PF/LF" — only when primarily about file structure/object definition and does not require unresolved program-behavior design first | `ibm-i-file-spec` |
+| File Spec (JSON) | DDS source code | `ibm-i-dds-generator` |
 | Program Spec | RPGLE or CLLE source | `ibm-i-code-generator` |
-| Any spec artifact | Validation | `ibm-i-spec-reviewer` |
+| Any spec artifact | Spec validation | `ibm-i-spec-reviewer` |
+| DDS source | Validation against File Spec | `ibm-i-dds-reviewer` |
 | Code | Validation against Program Spec | `ibm-i-code-reviewer` |
 
 ---
@@ -295,19 +329,30 @@ This skill coordinates the rest of the IBM i skill system:
 | Skill | Orchestrator Use |
 |-------|------------------|
 | `ibm-i-requirement-normalizer` | Start here for messy or mixed input |
+| `ibm-i-impact-analyzer` | Use for enhancement work when existing source is available — analyze before specifying |
 | `ibm-i-functional-spec` | Use for business-functional formalization |
 | `ibm-i-technical-design` | Use for technical approach and object allocation |
 | `ibm-i-program-spec` | Use for implementation-ready logic and contracts |
+| `ibm-i-file-spec` | Use for DDS-based file definitions (PF, LF, PRTF, DSPF) — parallel to Program Spec |
+| `ibm-i-dds-generator` | Use for DDS source generation from File Spec JSON (PF, LF, PRTF, DSPF — V2.0) |
 | `ibm-i-code-generator` | Use for source generation from Program Spec |
-| `ibm-i-spec-reviewer` | Use for document-level readiness and gate checks |
+| `ibm-i-spec-reviewer` | Use for spec-level readiness and gate checks |
+| `ibm-i-dds-reviewer` | Use for DDS-level readiness and gate checks |
 | `ibm-i-code-reviewer` | Use for code-level readiness and gate checks |
 
-Recommended default path:
+Recommended default paths:
+
+**Program Chain:**
 1. Normalize raw input if needed
 2. Produce Functional Spec
 3. Produce Technical Design
 4. Produce Program Spec
-5. Generate code
-6. Review code
+5. Generate code (`ibm-i-code-generator`)
+6. Review code (`ibm-i-code-reviewer`)
+
+**File Chain** (parallel to Program Chain from step 4):
+4. Produce File Spec (`ibm-i-file-spec`)
+5. Generate DDS (`ibm-i-dds-generator`)
+6. Review DDS (`ibm-i-dds-reviewer`)
 
 Use this skill whenever the user is unsure where they are in that chain or what the next move should be.

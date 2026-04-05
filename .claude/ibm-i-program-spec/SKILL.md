@@ -247,15 +247,24 @@ irrelevant, omit them entirely (do not write `N/A`). Maintain section order as l
 
 <For change specs, mark fields: (NEW), (MODIFIED), (EXISTING — unchanged)>
 
-| Field Name | Source | Storage | Read by Steps | Written by Steps | Notes |
-|------------|--------|---------|--------------|-----------------|-------|
+| Field Name | Source | Storage | Read by Steps | Written by Steps | File Spec Ref | Notes |
+|------------|--------|---------|--------------|-----------------|---------------|-------|
+
+The `File Spec Ref` column is optional. When a File Spec exists for the source file, use
+the cross-spec reference format: `<specId>:<fieldId>` (e.g., `CUSTMAST-20260403-01:FLD-01`).
+This enables traceability from program fields back to file definitions. Omit the column if
+no File Specs exist for the referenced files.
 
 ---
 
 ## File Usage
 
-| File Name | Type (I/O/U) | Key Field(s) | Access Pattern | Description |
-|-----------|--------------|-------------|----------------|-------------|
+| File Name | Type (I/O/U) | Key Field(s) | Access Pattern | File Spec Ref | Description |
+|-----------|--------------|-------------|----------------|---------------|-------------|
+
+The `File Spec Ref` column is optional. When a File Spec exists for this file, use the
+spec ID (e.g., `CUSTMAST-20260403-01`). This creates a navigable link from the Program Spec
+to the file definition. Omit the column if no File Specs exist.
 
 Access Pattern values:
 - **1:1** — unique key, single record expected (maps to `CHAIN`)
@@ -327,8 +336,8 @@ Step 2: IF <condition> → <action> (BR-xx)
 
 ### File Output / Update
 
-| File | Action | Fields Modified | Condition |
-|------|--------|----------------|-----------|
+| File | Action | Fields Modified | File Spec Ref | Condition |
+|------|--------|----------------|---------------|-----------|
 
 ---
 
@@ -416,6 +425,8 @@ at the current Spec Level.
 - [ ] Return Code Definition covers every possible return value
 - [ ] Traceability Matrix includes every BR-xx with no gaps
 - [ ] File Usage includes key field(s) and Access Pattern (1:1 / 1:N / Sequential) for each file
+- [ ] File Spec Ref columns populated when File Specs exist for referenced files (optional but recommended)
+- [ ] Cross-spec references use correct format: `<specId>:<fieldId>` (e.g., `CUSTMAST-20260403-01:FLD-01`)
 - [ ] Main Logic uses `FOR EACH` notation for files with 1:N access pattern
 
 **L3 only:**
@@ -440,3 +451,21 @@ at the current Spec Level.
 - `examples/sample-lite-spec.md` — Example L1 Lite change spec
 
 Read these if you need additional context on section content or formatting.
+
+---
+
+## Cross-Spec Interoperability
+
+Program Spec and File Spec are peer artifacts at the same chain level. When File Specs exist
+for referenced files, the Program Spec can link to them via optional `File Spec Ref` columns
+in Data Contract, File Usage, and File Output / Update.
+
+**Reference format:** `<specId>` for file-level links, `<specId>:<fieldId>` for field-level links.
+
+This interoperability is **optional** — a Program Spec is valid without cross-spec references.
+When present, the references enable:
+- Traceability from program fields back to file definitions
+- Automated consistency checking between Program Spec and File Spec
+- Change impact analysis when file definitions change
+
+For the complete cross-spec reference model, see `ibm-i-file-spec/references/interop-model.md`.

@@ -2,8 +2,10 @@
 name: ibm-i-spec-reviewer
 description: >
   Reviews IBM i (AS/400) specification documents for quality, completeness, layer-boundary
-  correctness, and downstream readiness. V1.0 — supports review of Requirement Normalizer
-  outputs, Functional Specs, Technical Designs, and Program Specs. Detects layer violations,
+  correctness, and downstream readiness. V1.1 — supports review of Requirement Normalizer
+  outputs, Functional Specs, Technical Designs, Program Specs, and File Specs. V1.1 adds
+  File Spec–specific review rules: L1/L2/L3 section inclusion, Layer 2 JSON autonomy,
+  FMT-nn/FLD-nn ID integrity, file type–specific mandatory items, and JSON quality checks. Detects layer violations,
   missing information, unsupported content, traceability gaps, and IBM i fit issues. Produces
   a structured review report with severity-classified findings and an actionable readiness
   decision. Use this skill whenever a user provides an existing IBM i specification document
@@ -13,7 +15,7 @@ description: >
   review skill — it does not generate, rewrite, or replace specifications.
 ---
 
-# IBM i Spec Reviewer (V1.0)
+# IBM i Spec Reviewer (V1.1)
 
 Reviews existing IBM i (AS/400) specification documents and produces a structured assessment
 report. The output is a review — never a replacement document, never a rewritten spec, never
@@ -22,9 +24,10 @@ source code.
 **Document Chain Position:**
 
 ```
-Requirement Normalizer → Functional Spec → Technical Design → Program Spec → Coding
-        ↑                      ↑                  ↑                ↑
-        └──────────────────────┴──────────────────┴────────────────┘
+Requirement Normalizer → Functional Spec → Technical Design ──→ Program Spec → Coding
+        ↑                      ↑                  ↑    │             ↑
+        │                      │                  │    └→ File Spec  │
+        └──────────────────────┴──────────────────┴────────┴────────┘
                           this skill reviews any of these
 ```
 
@@ -38,6 +41,7 @@ stage.
 | Functional Spec | Business review / Technical Design generation | Is the functional scope clear enough for business sign-off or design? |
 | Technical Design | Design review / Program Spec generation | Is the design sound enough for sign-off or implementation spec? |
 | Program Spec | Build handoff / coding | Is the spec complete enough for a developer to build from? |
+| File Spec | DDS development / file creation | Is the file definition complete enough for a developer to write DDS source? |
 
 ---
 
@@ -84,11 +88,12 @@ Determine what type of document is being reviewed:
 | **Functional Spec** | Contains Functional Requirements (FR-nn), Business Rules (BR-xx), Current/Future Behavior, Acceptance Criteria |
 | **Technical Design** | Contains Module/Responsibility Allocation, Processing Stages, Data/Object Interaction Design, Impact Analysis |
 | **Program Spec** | Contains Main Logic (Step 1, Step 2...), Data Contract, Interface Contract, Traceability Matrix |
+| **File Spec** | Contains Record Format(s), Field Definitions (with Type/Length/Decimals), Key Definition, file type indicator (PF/LF/PRTF/DSPF), Based-On Physical File(s) (LF), Subfile Definition (DSPF), Function Key Definitions (DSPF), Indicator Usage (PRTF/DSPF) |
 
 If the document type is unclear, state the ambiguity and review against the most likely
 type conservatively. Note any mixed-type signals as a finding.
 
-For tiered document types (Functional Spec, Technical Design, Program Spec), identify the
+For tiered document types (Functional Spec, Technical Design, Program Spec, File Spec), identify the
 declared or most likely level (L1 / L2 / L3) and change type before assessing completeness.
 Use that level when deciding which sections are REQUIRED, CONDITIONAL, or legitimately omitted.
 
@@ -144,7 +149,7 @@ applicable quality rule.
 
 - **Review ID:** <RV-yyyymmdd-nn>
 - **Reviewed Document:** <document ID or title from the reviewed document>
-- **Document Type:** <Requirement Normalizer / Functional Spec / Technical Design / Program Spec>
+- **Document Type:** <Requirement Normalizer / Functional Spec / Technical Design / Program Spec / File Spec>
 - **Document Level:** <L1 / L2 / L3 — if applicable>
 - **Change Type:** <New / Enhancement — if identifiable>
 - **Review Scope:** <Full review / Targeted review — specify focus if targeted>
@@ -264,6 +269,11 @@ candidate sections must remain candidate-level rather than formal spec sections.
 `Suggested Downstream Document` section must also include the `Critical items to resolve
 before proceeding` checklist.>
 
+<For File Spec reviews (V1.1+), additionally apply the File Spec Review Rule: check
+L1/L2/L3 section inclusion, Layer 2 JSON autonomy, FMT-nn/FLD-nn ID integrity,
+file type–specific mandatory items (PF/LF/PRTF/DSPF), and JSON quality. See the
+File Spec Review Rule section for the complete checklist.>
+
 | Section | Expected | Status | Notes |
 |---------|----------|--------|-------|
 | <section name> | Required / Conditional | Present / Missing / Empty / Incomplete | <detail if needed> |
@@ -338,6 +348,7 @@ confirmed defects.>
 | Functional Spec | Business review → Technical Design generation |
 | Technical Design | Design review → Program Spec generation |
 | Program Spec | Build review → developer handoff |
+| File Spec | File definition review → DDS generation (`ibm-i-dds-generator`) |
 
 **Blocking issues:** <count of Critical findings>
 **Non-blocking issues:** <count of Major + Minor findings>
@@ -371,6 +382,7 @@ user needs a document generated, recommend the appropriate generation skill:
 - Functional Spec → `ibm-i-functional-spec`
 - Technical Design → `ibm-i-technical-design`
 - Program Spec → `ibm-i-program-spec`
+- File Spec → `ibm-i-file-spec`
 
 The review may suggest improved wording for specific findings, but must not produce
 replacement sections or rewrite the document wholesale.
@@ -464,24 +476,108 @@ candidate-level:
 - The `Critical items to resolve before proceeding` list should be present and usable as an
   actionable triage checklist for the recommended downstream step
 
+### File Spec Review Rule
+
+When reviewing a File Spec, apply these additional checks beyond the standard review
+dimensions. These rules are specific to the dual-layer File Spec format (V2.0).
+
+#### Section Inclusion by Level
+
+Validate completeness against the File Spec's Section Inclusion Table:
+
+| Section | L1 Lite | L2 Standard | L3 Full |
+|---------|---------|-------------|---------|
+| Spec Header | REQUIRED | REQUIRED | REQUIRED |
+| Record Formats | REQUIRED | REQUIRED | REQUIRED |
+| Field Definitions | REQUIRED | REQUIRED | REQUIRED |
+| Key Definition | CONDITIONAL | REQUIRED | REQUIRED |
+| Business Rules / Constraints | OMIT | CONDITIONAL | REQUIRED |
+| Version File Info | CONDITIONAL | CONDITIONAL | CONDITIONAL |
+| Open Questions | CONDITIONAL | CONDITIONAL | REQUIRED |
+| Layer 2 JSON | OMIT | REQUIRED | REQUIRED |
+
+Do not flag a section as missing if it is OMIT at the declared level.
+
+#### Layer 2 JSON Autonomy
+
+For L2 and L3 File Specs, verify:
+- The Layer 2 JSON section exists and is a valid JSON block
+- The JSON is **self-contained** — it must be consumable by `ibm-i-dds-generator` without
+  referencing the Layer 1 Markdown for field names, types, lengths, or keys
+- Field definitions in JSON match the Layer 1 Markdown tables (names, types, lengths, decimals)
+- If JSON and Markdown disagree on any field attribute, flag as a Critical finding — the
+  JSON is the machine-readable contract and must be correct
+
+#### ID Uniqueness and Referential Integrity
+
+Check the following identifiers for uniqueness and completeness:
+- **FMT-nn** (format IDs): each record format must have a unique FMT-nn
+- **FLD-nn** (field IDs): each field must have a unique FLD-nn within the spec (numbered sequentially across all formats, not per-format)
+- **Key fieldRef values**: every `fieldRef` in `keyDefinition.keys` must reference a valid
+  FLD-nn that exists in `fieldDefinitions`
+- **Cross-format references**: if an LF references fields from a PF, the field names must
+  match the based-on PF's field names
+
+#### File Type–Specific Mandatory Items
+
+Each file type has mandatory elements beyond the common sections:
+
+**PF (Physical File):**
+- All fields must have `fieldName`, `type`, and `length` (except L/T/Z which need no length)
+- Numeric fields (P, S, B, I) must have `decimals`
+- Key definition is CONDITIONAL (arrival-sequence PFs have no key)
+
+**LF (Logical File):**
+- `basedOnPhysicalFiles` must be present and non-empty
+- `fieldSelectionMapping` must indicate how fields are handled (allIncluded, explicit list,
+  renamed, redefined, or omitted)
+- For join logicals: `joinSpecification` must define join pairs with primary/secondary files
+  and join fields
+- Select/omit criteria (if present) must have valid comparison operators and field references
+
+**PRTF (Printer File):**
+- `pageLayout` must include page dimensions (width, length) and overflow indicator
+- Fields must have print positioning (row, column)
+- Spacing/skipping attributes should be defined at format level
+
+**DSPF (Display File):**
+- `screenLayout` must include screen dimensions
+- `functionKeyDefinitions` must define all active function keys with indicator mappings
+- Fields must have screen positioning (row, column) and usage type (I/O/B/H)
+- For subfile screens: `subfileDefinition` must include SFL record format, control format,
+  page size, and subfile size
+- `indicatorUsage` must define all referenced indicators with their purpose
+
+#### JSON Quality Checks
+
+When the Layer 2 JSON is present, verify:
+- `$schema` and `schemaVersion` are present
+- `specHeader.fileType` matches the declared file type
+- `recordFormats` array has at least one entry with `formatId` and `formatName`
+- `fieldDefinitions` is keyed by `formatId` and contains arrays of field objects
+- No `TBD` values appear in field names, types, or lengths without corresponding entries in
+  `openQuestions`
+- `text` values are within 50-character DDS TEXT keyword limit
+- `columnHeading` values use ` / ` separator for multi-line COLHDG
+
 ---
 
 ## Review Dimensions by Document Type
 
 Not every dimension applies equally. Focus review effort accordingly:
 
-| Dimension | Normalizer | Functional Spec | Technical Design | Program Spec |
-|-----------|-----------|----------------|-----------------|-------------|
-| Layer Boundary | High | High | High | Medium |
-| Completeness | Medium | High | High | High |
-| Clarity / Readability | Medium | High | Medium | Medium |
-| TBD / Inferred Handling | High | High | High | Medium |
-| Consistency / Traceability | Low | High | High | Critical |
-| Unsupported Content | High | High | Medium | Medium |
-| Enhancement Tagging | Medium | High | High | High |
-| Scope | Medium | High | Medium | Low |
-| IBM i Fit | Low | Low | High | High |
-| Downstream Readiness | High | High | High | High |
+| Dimension | Normalizer | Functional Spec | Technical Design | Program Spec | File Spec |
+|-----------|-----------|----------------|-----------------|-------------|-----------|
+| Layer Boundary | High | High | High | Medium | Medium |
+| Completeness | Medium | High | High | High | High |
+| Clarity / Readability | Medium | High | Medium | Medium | Medium |
+| TBD / Inferred Handling | High | High | High | Medium | High |
+| Consistency / Traceability | Low | High | High | Critical | High |
+| Unsupported Content | High | High | Medium | Medium | High |
+| Enhancement Tagging | Medium | High | High | High | High |
+| Scope | Medium | High | Medium | Low | Medium |
+| IBM i Fit | Low | Low | High | High | High |
+| Downstream Readiness | High | High | High | High | High |
 
 ---
 
@@ -495,6 +591,7 @@ Quick reference for what belongs in each layer:
 | **Functional Spec** | Business behavior (current/future), FR-nn, BR-xx, acceptance criteria, exception scenarios, business inputs/outputs | Module allocation, object interaction maps, processing stages, file access summaries, parameter tables, implementation logic |
 | **Technical Design** | Module responsibility allocation, processing stages, data/object interaction, interface/dependency design, impact analysis, error handling strategy | Step-by-step implementation logic, field-level data contracts, exhaustive parameter tables, return code catalogs, subroutine decomposition |
 | **Program Spec** | Step-by-step Main Logic, field-level Data Contract, Interface Contract with parameters, File Usage, Error Handling with return codes, BR-to-step Traceability Matrix | Business behavior narratives, acceptance criteria, design rationale, module allocation |
+| **File Spec** | Record format definitions, DDS field definitions (name/type/length), key definitions, based-on PF (LF), select/omit criteria (LF), subfile definition (DSPF), function keys (DSPF), indicator usage (PRTF/DSPF), version file references | Program logic, business behavior narratives, design rationale, DDS source code |
 
 ---
 
@@ -517,6 +614,7 @@ Before outputting the review, confirm:
 - [ ] Review does not rewrite or replace any part of the reviewed document
 - [ ] Strengths section is specific, evidence-based, and worth preserving
 - [ ] Requirement Normalizer reviews check CF/CBR/CE candidate numbering, ban on premature final FR/BR numbering, candidate-level boundaries, downstream routing, and the critical-items triage checklist
+- [ ] File Spec reviews check L1/L2/L3 section inclusion, Layer 2 JSON autonomy (L2+), FMT-nn/FLD-nn uniqueness and referential integrity, file type–specific mandatory items, and JSON quality
 
 ---
 
@@ -530,6 +628,7 @@ This skill reviews documents produced by (or intended for) these generation skil
 | `ibm-i-functional-spec` | Business-level completeness, FR/BR quality, acceptance criteria coverage, no technical drift |
 | `ibm-i-technical-design` | Design-level completeness, module allocation quality, no implementation drift, impact analysis |
 | `ibm-i-program-spec` | Implementation completeness, traceability, data/interface contracts, no design-level vagueness |
+| `ibm-i-file-spec` | File-type-specific completeness (keys, based-on PF, subfile, indicators), field definition quality, version file correctness, no DDS source or program logic drift |
 
 When the review identifies issues that require document regeneration rather than targeted
 fixes, recommend the appropriate generation skill and specify what input or guidance should
