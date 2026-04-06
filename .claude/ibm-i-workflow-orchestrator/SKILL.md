@@ -29,6 +29,7 @@ Functional Spec
    ↓
 Technical Design
    ├──→ Program Spec → Code Generation → Code Review       (Program Chain)
+   │         └──→ UT Plan (any time after Program Spec, or after Code Review)
    └──→ File Spec → DDS Generation → DDS Review            (File Chain)
 ```
 
@@ -109,6 +110,7 @@ Determine what the user is trying to accomplish:
 | Define file objects (PF, LF, PRTF, DSPF) | File Spec |
 | Generate DDS source from a File Spec | DDS Generation |
 | Generate RPGLE or CLLE source | Code Generation |
+| Produce developer-level UT cases | UT Plan |
 | Validate a spec artifact | Spec Review |
 | Validate DDS source against a File Spec | DDS Review |
 | Validate code against a Program Spec | Code Review |
@@ -135,6 +137,7 @@ Use this decision table:
 | File Spec | DDS source code | `ibm-i-dds-generator` | File chain: spec → DDS |
 | File Spec JSON | DDS source for PF, LF, PRTF, or DSPF | `ibm-i-dds-generator` | Route when File Spec JSON (Layer 2) is available |
 | Program Spec | Source code | `ibm-i-code-generator` | Program chain: spec → code |
+| Program Spec / Code | UT plan | `ibm-i-ut-plan-generator` | Recommended after Program Spec is ready or after code generation/review |
 | DDS Source | DDS validation against File Spec | `ibm-i-dds-reviewer` | Preferred DDS gate |
 | Code | Implementation validation | `ibm-i-code-reviewer` | Preferred code gate |
 
@@ -163,21 +166,26 @@ would have contributed.
 
 If a skip is unsafe, say so clearly and route to the missing stage.
 
-### Step 5 — Apply Review Gates
+### Step 5 — Apply Review Gates and UT Plan Reminder
 
-Use review skills when they materially reduce risk:
+**Default behavior: actively recommend review and UT plan.** The orchestrator must proactively remind the user about available review gates and UT plan generation at every routing decision — not wait for the user to ask.
 
-| Artifact | Optional / Recommended Gate |
-|----------|-----------------------------|
-| Requirement Normalizer output | `ibm-i-spec-reviewer` when routing confidence is low or downstream jump is non-standard |
-| Functional Spec | `ibm-i-spec-reviewer` before Technical Design when business scope is still uncertain |
-| Technical Design | `ibm-i-spec-reviewer` before Program Spec when object allocation or impact is risky |
-| Program Spec | `ibm-i-spec-reviewer` before code generation when implementation risk is high |
-| File Spec | `ibm-i-spec-reviewer` before DDS generation when file definition is complex or critical |
-| Generated or manual DDS source | `ibm-i-dds-reviewer` before file creation/compilation |
-| Generated or manual code | `ibm-i-code-reviewer` before build/integration/test |
+| Artifact Just Produced | Proactive Reminder |
+|------------------------|--------------------|
+| Requirement Normalizer output | Recommend `ibm-i-spec-reviewer` before downstream jump |
+| Functional Spec | Recommend `ibm-i-spec-reviewer` before Technical Design |
+| Technical Design | Recommend `ibm-i-spec-reviewer` before Program Spec or File Spec |
+| Program Spec | Recommend `ibm-i-spec-reviewer` before code generation; also recommend `ibm-i-ut-plan-generator` for UT plan |
+| File Spec | Recommend `ibm-i-spec-reviewer` before DDS generation |
+| Generated or manual DDS source | Recommend `ibm-i-dds-reviewer` before file creation/compilation |
+| Generated or manual code | Recommend `ibm-i-code-reviewer` before build/integration/test; also recommend `ibm-i-ut-plan-generator` if UT plan was not yet produced |
 
-Do not force review gates mechanically for trivial requests. Use them when they prevent real downstream risk.
+**UT Plan proactive triggers:**
+- After Program Spec is produced → remind: "Consider generating a UT Plan before coding"
+- After code generation or code review → remind: "Consider generating a UT Plan before SIT handoff"
+- The user may decline — but the orchestrator must surface the option
+
+For trivial L1-level changes (single-field change, flag toggle), the orchestrator may note that review and UT plan are optional rather than recommended. For L2/L3 changes, always recommend both.
 
 ### Step 6 — Execute or Route
 
@@ -216,6 +224,9 @@ Use short, structured routing output.
 - **Produce:** <next artifact>
 - **Blocking input:** <none / missing item>
 - **Execution decision:** <proceed now / stop and gather input>
+- **Save reminder:** <save current artifact as [suggested filename] — consumed by [downstream skill]>
+- **Review reminder:** <recommend ibm-i-spec-reviewer / ibm-i-dds-reviewer / ibm-i-code-reviewer / none>
+- **UT Plan reminder:** <recommend ibm-i-ut-plan-generator / not yet applicable / already produced>
 ```
 
 Keep this proportionate. For an obvious route, one short paragraph may be enough.
@@ -235,6 +246,7 @@ This skill routes work. It does not replace:
 - `ibm-i-file-spec`
 - `ibm-i-dds-generator`
 - `ibm-i-code-generator`
+- `ibm-i-ut-plan-generator`
 - `ibm-i-spec-reviewer`
 - `ibm-i-dds-reviewer`
 - `ibm-i-code-reviewer`
@@ -266,14 +278,24 @@ for the next stage, say so and route to the correct prerequisite step.
 A stage may be skipped only when the current artifact already contains the substance of the
 skipped stage. Skipping is justified by content maturity, not user impatience.
 
-### Review Gate Rule
+### Proactive Review and UT Plan Rule
 
-Recommend review gates when they materially reduce risk:
-- route to `ibm-i-spec-reviewer` for spec-level uncertainty or non-standard downstream jumps
-- route to `ibm-i-dds-reviewer` before file creation/compilation for generated or manual DDS
-- route to `ibm-i-code-reviewer` before build/integration/test for generated or manual code
+Default to actively recommending review gates and UT plan at every generation-to-generation transition:
+- remind `ibm-i-spec-reviewer` after any spec artifact is produced
+- remind `ibm-i-dds-reviewer` after DDS source is generated or provided
+- remind `ibm-i-code-reviewer` after code is generated or provided
+- remind `ibm-i-ut-plan-generator` after Program Spec is ready or after code generation/review
 
-Do not force reviewers into every trivial path.
+The user may decline — but the orchestrator must surface the recommendation. For trivial L1-level changes, note that review and UT plan are optional rather than recommended.
+
+### Artifact Persistence Rule
+
+After each generation step, remind the user to save the produced artifact before proceeding to the next skill. Downstream skills consume the previous artifact as input — if it is not saved, context may be lost between conversation turns.
+
+The reminder should be concrete:
+- suggest a filename (e.g., "Save this Functional Spec as `functional-spec-ORDENT.md`")
+- state which downstream skill will consume it (e.g., "The Technical Design skill will need this as input")
+- keep the reminder to one line — do not block forward progress
 
 ### Momentum Rule
 
@@ -301,6 +323,7 @@ Use this quick map:
 | Any input | File structure / DDS / "add field" / "new PF/LF" — only when primarily about file structure/object definition and does not require unresolved program-behavior design first | `ibm-i-file-spec` |
 | File Spec (JSON) | DDS source code | `ibm-i-dds-generator` |
 | Program Spec | RPGLE or CLLE source | `ibm-i-code-generator` |
+| Program Spec / Code | UT plan | `ibm-i-ut-plan-generator` |
 | Any spec artifact | Spec validation | `ibm-i-spec-reviewer` |
 | DDS source | Validation against File Spec | `ibm-i-dds-reviewer` |
 | Code | Validation against Program Spec | `ibm-i-code-reviewer` |
@@ -334,8 +357,9 @@ This skill coordinates the rest of the IBM i skill system:
 | `ibm-i-technical-design` | Use for technical approach and object allocation |
 | `ibm-i-program-spec` | Use for implementation-ready logic and contracts |
 | `ibm-i-file-spec` | Use for DDS-based file definitions (PF, LF, PRTF, DSPF) — parallel to Program Spec |
-| `ibm-i-dds-generator` | Use for DDS source generation from File Spec JSON (PF, LF, PRTF, DSPF — V2.0) |
+| `ibm-i-dds-generator` | Use for DDS source generation from File Spec JSON (PF, LF, PRTF, DSPF — V2.2) |
 | `ibm-i-code-generator` | Use for source generation from Program Spec |
+| `ibm-i-ut-plan-generator` | Use for developer-level UT plans — recommended after Program Spec or after code generation/review |
 | `ibm-i-spec-reviewer` | Use for spec-level readiness and gate checks |
 | `ibm-i-dds-reviewer` | Use for DDS-level readiness and gate checks |
 | `ibm-i-code-reviewer` | Use for code-level readiness and gate checks |
@@ -347,8 +371,9 @@ Recommended default paths:
 2. Produce Functional Spec
 3. Produce Technical Design
 4. Produce Program Spec
-5. Generate code (`ibm-i-code-generator`)
-6. Review code (`ibm-i-code-reviewer`)
+5. Generate UT Plan (`ibm-i-ut-plan-generator`) — recommended before or after coding
+6. Generate code (`ibm-i-code-generator`)
+7. Review code (`ibm-i-code-reviewer`)
 
 **File Chain** (parallel to Program Chain from step 4):
 4. Produce File Spec (`ibm-i-file-spec`)
