@@ -38,6 +38,16 @@ Supporting gates:
 - `ibm-i-dds-reviewer` may be used after generated or manually written DDS source
 - `ibm-i-code-reviewer` may be used after generated or manually written RPGLE/CLLE code
 
+**Fast-Path (Mini Requirement):**
+
+```
+Mini Requirement → Program Spec → Spec Review → Code Generation → Compile Precheck → Code Review
+                                                         └──→ UT Plan (parallel, optional)
+```
+
+The fast-path bypasses the full chain for daily enhancement work when a Mini Requirement
+template is provided. See `references/mini-requirement-template.md` for the template.
+
 This skill exists to prevent two common failures:
 1. starting too deep in the chain without enough upstream definition
 2. stopping at the wrong layer when the user's real goal is downstream delivery
@@ -83,6 +93,7 @@ Classify what the user currently has:
 
 | Current Input | Likely Stage |
 |---------------|-------------|
+| Mini Requirement template (Change Description, Target Program, Existing Source, File Sources, Business Rules, Expected Outcome) | Mini Requirement — fast-path to Program Spec if eligibility gate passes (enhancement/bug fix/new logic path/error handling only; new programs and large scope route to full chain) |
 | Email, ticket, meeting notes, mixed business/technical request, conversational requirement | Raw Input |
 | Structured package with Change Intent, Known Facts, candidate items, Suggested Downstream Document | Requirement Normalizer output |
 | Business behavior, FR-nn, BR-xx, Current/Future Behavior, Acceptance Criteria | Functional Spec |
@@ -124,6 +135,7 @@ Use this decision table:
 
 | Current Stage | Desired Outcome | Route To | Notes |
 |---------------|-----------------|----------|-------|
+| Mini Requirement | Program Spec → Code | `ibm-i-program-spec` | **Fast-path**: skip normalize/functional/TD when eligibility gate passes (enhancement/bug fix/new logic path/error handling — not new programs) and required fields are present. See Fast-Path Validation Rule. |
 | Existing source + CR | Impact analysis before spec | `ibm-i-impact-analyzer` | Enhancement entry point — analyze existing program before specifying changes |
 | Raw Input | Any downstream spec/design work | `ibm-i-requirement-normalizer` | Start here unless the input is already well structured |
 | Requirement Normalizer output | Business scoping | `ibm-i-functional-spec` | Default next step |
@@ -149,6 +161,10 @@ would have contributed.
 
 #### Safe Skip Examples
 
+- **Mini Requirement → Program Spec** (fast-path)
+  when the eligibility gate passes (Change Type is enhancement, bug fix, new logic path, or
+  error handling — not new programs or large scope) and required fields are present. This is
+  the standard daily enhancement path.
 - Requirement Normalizer output → Technical Design
   only if functional scope is already agreed and the Requirement Normalizer output clearly supports design
 - Requirement Normalizer output → Program Spec
@@ -342,6 +358,42 @@ The reminder should be concrete:
 - state which downstream skill will consume it (e.g., "The Technical Design skill will need this as input")
 - keep the reminder to one line — do not block forward progress
 
+### Fast-Path Validation Rule
+
+When a Mini Requirement template is provided, apply these checks in order:
+
+**Eligibility gate** — the fast-path is for enhancement work only:
+
+| Change Type | Fast-Path Eligible? | Action |
+|-------------|--------------------|----|
+| Enhancement | Yes | Continue to field validation below |
+| Bug Fix | Yes | Continue to field validation below |
+| New Logic Path | Yes | Continue to field validation below — adding a new path to an existing program |
+| Error Handling Change | Yes | Continue to field validation below |
+| New Program | No | Route to full chain (`ibm-i-requirement-normalizer` or `ibm-i-functional-spec`) |
+| Large / unclear scope | No | Route to full chain — the mini template does not provide enough upstream definition |
+
+If Change Type is missing or ambiguous, ask before routing — do not assume enhancement.
+
+**Field validation** — after eligibility is confirmed:
+
+| Field | Required? | If Missing |
+|-------|-----------|-----------|
+| Change Description | Yes | Cannot determine scope — ask |
+| Target Program | Yes | Cannot generate spec without target — ask |
+| Existing Source | Yes | Cannot produce safe enhancement code without current source — ask |
+| File Sources | Yes | Program Spec cannot define File Usage or Compile-Oriented Constraints — ask |
+| Business Rules Affected | Yes | Program Spec cannot build BR traceability — ask |
+| Expected Outcome | Yes | Cannot determine acceptance — ask |
+| Error / Exception Context | Optional | N/A if not a bug fix |
+| Supplement Sources | Optional | Generated code may not match shop conventions — note |
+
+If eligible and all required fields are present, route directly to `ibm-i-program-spec`
+without routing commentary. Do not send the user through Requirement Normalizer or
+Functional Spec.
+
+If required fields are missing, ask for them — do not silently route to the full chain.
+
 ### Momentum Rule
 
 The orchestrator should reduce confusion and create forward motion. Prefer:
@@ -359,6 +411,7 @@ Use this quick map:
 
 | If the user has... | And wants... | Route To |
 |--------------------|-------------|----------|
+| Mini Requirement template (eligible Change Type) | Program Spec → Code (fast-path) | `ibm-i-program-spec` |
 | Existing source + CR | Impact analysis | `ibm-i-impact-analyzer` |
 | Messy request | Structured starting point | `ibm-i-requirement-normalizer` |
 | Requirement Normalizer output | Business-functional scope | `ibm-i-functional-spec` |
@@ -387,6 +440,7 @@ Before outputting workflow guidance, confirm:
 - [ ] No missing maturity was invented
 - [ ] Guidance is proportionate and creates forward motion
 - [ ] If the downstream task is already obvious and safe, the orchestrator yields to the downstream skill
+- [ ] Fast-path applied when Mini Requirement template is provided with sufficient fields
 - [ ] Pre-generation gate applied when routing to code-generator for fixed-format RPGLE (L2/L3): format names, key composition, and error mapping resolved
 
 ---
