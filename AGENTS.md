@@ -6,7 +6,7 @@ This file provides guidance to Codex and other AI agents when working with this 
 
 ## Repository Purpose
 
-This repository contains a family of 13 Claude Code Skills for IBM i (AS/400) enterprise
+This repository contains a family of 14 Claude Code Skills for IBM i (AS/400) enterprise
 development. The skills form two complete delivery pipelines — a **Program Chain** for
 RPGLE/CLLE code and a **File Chain** for DDS source — plus spec review, DDS review, code
 review, unit test planning, and workflow orchestration.
@@ -37,7 +37,7 @@ Raw Input → Requirement Normalizer → Functional Spec → Technical Design
 
 ---
 
-## All 13 Skills
+## All 14 Skills
 
 ### Generation & Analysis Skills (9)
 
@@ -53,10 +53,11 @@ Raw Input → Requirement Normalizer → Functional Spec → Technical Design
 | `ibm-i-dds-generator` | `.claude/ibm-i-dds-generator/` | V2.2 | DDS source from File Spec JSON (PF/LF/PRTF/DSPF) |
 | `ibm-i-ut-plan-generator` | `.claude/ibm-i-ut-plan-generator/` | V1.2 | Unit test plan from specs, CRs, or raw input |
 
-### Review Skills (3)
+### Review Skills (4)
 
 | Skill | Path | Version | What It Reviews |
 |-------|------|---------|----------------|
+| `ibm-i-compile-precheck` | `.claude/ibm-i-compile-precheck/` | V1.0 | RPGLE/CLLE source — compile safety, opcode patterns, KLIST, aliases |
 | `ibm-i-spec-reviewer` | `.claude/ibm-i-spec-reviewer/` | V1.1 | Any spec document — layer boundary, completeness, File Spec rules |
 | `ibm-i-dds-reviewer` | `.claude/ibm-i-dds-reviewer/` | V1.2 | DDS source against File Spec — syntax, completeness, type-specific rules |
 | `ibm-i-code-reviewer` | `.claude/ibm-i-code-reviewer/` | V1.0 | RPGLE/CLLE against Program Spec — correctness, enhancement safety |
@@ -84,6 +85,7 @@ All skills live under `.claude/` (not `.Codex/`). Each skill's behavior is defin
 ├── ibm-i-dds-generator/             # V2.2 + examples (6), tests (31 cases)
 ├── ibm-i-code-generator/            # V1.0 + references (3), examples (6), tests (8 cases)
 ├── ibm-i-ut-plan-generator/         # V1.2 — unit test plan from specs, CRs, raw input
+├── ibm-i-compile-precheck/          # V1.0 — pre-compile safety review + checklists
 ├── ibm-i-dds-reviewer/              # V1.2
 ├── ibm-i-spec-reviewer/             # V1.1 + examples
 ├── ibm-i-code-reviewer/             # V1.0 + references (3), examples (5)
@@ -133,6 +135,7 @@ Program Spec and File Spec are peer artifacts. When File Specs exist:
 | File Spec JSON | DDS source code | `ibm-i-dds-generator` |
 | Program Spec | RPGLE/CLLE source | `ibm-i-code-generator` |
 | Any spec or CR | Unit test plan | `ibm-i-ut-plan-generator` |
+| Generated RPGLE/CLLE | Compile safety check | `ibm-i-compile-precheck` |
 | Any spec | Quality check | `ibm-i-spec-reviewer` |
 | DDS source | Validation | `ibm-i-dds-reviewer` |
 | RPGLE/CLLE source | Validation | `ibm-i-code-reviewer` |

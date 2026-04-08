@@ -132,6 +132,7 @@ Inclusion Table** based on the determined Spec Level.
 | Error Handling | REQUIRED | REQUIRED | REQUIRED |
 | Traceability Matrix | OMIT | REQUIRED | REQUIRED |
 | Processing Considerations | OPTIONAL | CONDITIONAL | REQUIRED |
+| Compile-Oriented Constraints | OMIT | CONDITIONAL | REQUIRED |
 | Programming Language | REQUIRED | REQUIRED | REQUIRED |
 | Amend Data Structure | OPTIONAL | OPTIONAL | REQUIRED |
 | Open Questions / TBD | REQUIRED | REQUIRED | REQUIRED |
@@ -367,6 +368,27 @@ Step 2: IF <condition> → <action> (BR-xx)
 
 ---
 
+## Compile-Oriented Constraints
+
+<CONDITIONAL at L2, REQUIRED at L3. OMIT at L1. Include for fixed-format RPGLE enhancement
+work to ensure the downstream code generator has enough information for safe generation.>
+
+| Constraint | Value | Confidence |
+|-----------|-------|------------|
+| Record format name(s) | <exact format names from existing source, e.g., SSCUSTR, ORDHDRR> | Confirmed / Reference-derived / Assumed |
+| Key list composition | <KLIST name + KFLD fields in order, e.g., KYORDR = ORDNO + LINSEQ> | Confirmed / Reference-derived / Assumed |
+| Access pattern intent | <file: CHAIN (1:1) or SETLL/READE (1:N) per file> | Confirmed / Assumed |
+| Reference source member | <peer member name for naming/style, e.g., CUR41.rpgle, or N/A> | N/A if not available |
+| Array/response cap policy | <max count + overflow behavior: fail / truncate / wrap, or N/A> | Confirmed / Assumed |
+| Fixed-format restrictions | <any known compiler-level or shop restrictions on BIF usage in C-specs> | Confirmed / N/A |
+
+Confidence values:
+- **Confirmed** — verified from existing source or system documentation
+- **Reference-derived** — extracted from a reference member, not directly verified for this program
+- **Assumed** — inferred from naming or convention, needs verification before compile
+
+---
+
 ## Programming Language
 
 <RPGLE | CLLE>
@@ -428,6 +450,7 @@ at the current Spec Level.
 - [ ] File Spec Ref columns populated when File Specs exist for referenced files (optional but recommended)
 - [ ] Cross-spec references use correct format: `<specId>:<fieldId>` (e.g., `CUSTMAST-20260403-01:FLD-01`)
 - [ ] Main Logic uses `FOR EACH` notation for files with 1:N access pattern
+- [ ] Compile-Oriented Constraints populated for fixed-format RPGLE (L2/L3): format names, key composition, access pattern intent, confidence markers
 
 **L3 only:**
 - [ ] Caller Context is populated or explicitly TBD

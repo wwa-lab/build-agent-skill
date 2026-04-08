@@ -386,6 +386,19 @@ is affected by those changes.>
 | File Name | Accessed By | Access Type (I/O/U) | Key Field(s) | Purpose |
 |-----------|-------------|---------------------|-------------|---------|
 
+### Reference Naming Map
+
+<CONDITIONAL at L2/L3. Include for fixed-format RPGLE when naming distinctions affect
+downstream implementation. This section eliminates ambiguity about which name to use at
+each layer — file name vs record format name vs rename alias vs key list name.>
+
+| File Name | Record Format | Rename Alias | Key List Name | Access Style | Notes |
+|-----------|--------------|-------------|---------------|-------------|-------|
+| <PF/LF name> | <actual format name, e.g., SSCUSTR> | <renamed alias if used> | <KLIST name, e.g., KYORDR> | Keyed / Scan | <e.g., "scan is intentional design choice, not fallback"> |
+
+<When the design specifies a physical-file scan instead of keyed access, note this explicitly
+so the downstream code generator does not treat it as a missing key list.>
+
 ### Data Queue / Data Area Usage (if applicable)
 
 | Object | Type | Used By | Direction | Purpose |

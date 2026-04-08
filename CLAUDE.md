@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Purpose
 
-This repository contains a family of 13 Claude Code Skills for IBM i (AS/400) enterprise development. The skills form a complete document-and-implementation chain — from raw requirement intake through specification, code generation, review, and unit test planning — plus a file definition skill for DDS-based file objects and a workflow orchestrator for routing work through the chain.
+This repository contains a family of 14 Claude Code Skills for IBM i (AS/400) enterprise development. The skills form a complete document-and-implementation chain — from raw requirement intake through specification, code generation, review, and unit test planning — plus a file definition skill for DDS-based file objects and a workflow orchestrator for routing work through the chain.
 
 The repository contains no application code. All content is skill definitions (SKILL.md), reference documentation, and example outputs.
 
@@ -39,6 +39,7 @@ Raw Input → Requirement Normalizer → Functional Spec → Technical Design �
 | `ibm-i-code-generator` | Generates RPGLE/CLLE source from Program Spec | Spec-driven code — Skeleton or Full Implementation modes |
 | `ibm-i-dds-generator` | Generates DDS source from File Spec JSON | Spec-driven DDS — PF, LF, PRTF, DSPF (V2.2) |
 | `ibm-i-ut-plan-generator` | Generates Unit Test Plans from specs, CRs, or raw input | Developer-level UT cases — does not execute tests |
+| `ibm-i-compile-precheck` | Pre-compile review of RPGLE/CLLE for compile-safety issues | Quality gate — after code generation, before compile |
 | `ibm-i-spec-reviewer` | Reviews any spec document for quality, layer boundary, completeness | Quality gate — does not generate or rewrite |
 | `ibm-i-dds-reviewer` | Reviews DDS source against File Spec for correctness, syntax, completeness | Quality gate — does not generate or rewrite |
 | `ibm-i-code-reviewer` | Reviews code against Program Spec for correctness and enhancement safety | Quality gate — does not generate or rewrite |
@@ -96,6 +97,9 @@ Business rules use the same BR-xx numbering across the entire chain. The express
 │   └── tests/                      # runner.sh + 8 test cases (tc-cg-01 to tc-cg-08, 3 layers)
 ├── ibm-i-ut-plan-generator/
 │   └── SKILL.md                    # V1.2 — unit test plans from specs, CRs, or raw input
+├── ibm-i-compile-precheck/
+│   ├── SKILL.md                    # V1.0 — pre-compile safety review
+│   └── references/                 # fixed-format-checklists (CL1-CL6)
 ├── ibm-i-dds-reviewer/
 │   └── SKILL.md                    # V1.2 — reviews DDS source against File Spec
 ├── ibm-i-spec-reviewer/
@@ -177,4 +181,4 @@ All three reviewers (spec-reviewer, dds-reviewer, and code-reviewer) share these
 
 ## Skill Generation and Review Are Separate Concerns
 
-Generation skills (normalizer, impact-analyzer, functional-spec, technical-design, program-spec, file-spec, code-generator, dds-generator, ut-plan-generator) produce artifacts. Review skills (spec-reviewer, dds-reviewer, code-reviewer) assess artifacts. The workflow orchestrator routes work through the chain but does not replace any generation or review skill. A generation skill must never silently become a reviewer, and a reviewer must never silently rewrite the artifact it is reviewing.
+Generation skills (normalizer, impact-analyzer, functional-spec, technical-design, program-spec, file-spec, code-generator, dds-generator, ut-plan-generator) produce artifacts. Review skills (spec-reviewer, dds-reviewer, compile-precheck, code-reviewer) assess artifacts. The workflow orchestrator routes work through the chain but does not replace any generation or review skill. A generation skill must never silently become a reviewer, and a reviewer must never silently rewrite the artifact it is reviewing.
