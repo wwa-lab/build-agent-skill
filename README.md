@@ -36,6 +36,7 @@ Raw Input → Requirement Normalizer → Functional Spec → Technical Design �
 
 | Skill | What It Does | Gate |
 |-------|-------------|------|
+| **ibm-i-compile-precheck** | Pre-compile review of RPGLE/CLLE — opcode safety, KLIST completeness, alias consistency, bounds | Compile safety gate |
 | **ibm-i-spec-reviewer** | Reviews any spec document — checks layer boundary, completeness, traceability, downstream readiness | Spec quality gate |
 | **ibm-i-dds-reviewer** | Reviews DDS source against File Spec — checks correctness, syntax, completeness, type-specific rules | DDS quality gate |
 | **ibm-i-code-reviewer** | Reviews RPGLE/CLLE source against Program Spec — checks correctness, enhancement safety, format policy | Code quality gate |
@@ -68,6 +69,7 @@ Copy the `.claude/` directory into your project. Each skill is self-contained in
 ├── ibm-i-dds-generator/SKILL.md             # V2.2 + examples (6), tests (31 cases)
 ├── ibm-i-code-generator/SKILL.md            # V1.0 + references (3), examples (6), tests (8 cases)
 ├── ibm-i-ut-plan-generator/SKILL.md         # V1.2 — unit test plan from specs, CRs, raw input
+├── ibm-i-compile-precheck/SKILL.md           # V1.0 — pre-compile safety review + checklists
 ├── ibm-i-dds-reviewer/SKILL.md              # V1.2 — DDS source review gate
 ├── ibm-i-spec-reviewer/SKILL.md             # V1.1 + examples
 ├── ibm-i-code-reviewer/SKILL.md             # V1.0 + references (3), examples (5)
@@ -120,7 +122,7 @@ Skills trigger automatically based on context. You can also invoke them by name:
 3. **Technical Design** → design review → design approval
 4. **Program Spec** → build review → implementation readiness
 5. **File Spec** → file definition review (parallel to Program Spec)
-6. **Code Generation** → code review → build handoff
+6. **Code Generation** → compile precheck → code review → build handoff
 7. **UT Plan** → developer-level test cases (any time a Program Spec, Technical Design, or CR is available)
 
 Use **Spec Reviewer** between any spec stages. Use **DDS Reviewer** after DDS generation. Use **Code Reviewer** after code generation or manual coding. Use **UT Plan Generator** before coding (for test-first) or before SIT handoff.

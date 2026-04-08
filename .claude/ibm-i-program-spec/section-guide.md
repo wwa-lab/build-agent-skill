@@ -178,6 +178,19 @@ REQUIRED at L2 and L3. OMIT at L1.
 
 REQUIRED at L3. CONDITIONAL at L2. OPTIONAL at L1.
 
+## Compile-Oriented Constraints
+
+Captures compile-level structural facts that the downstream code generator needs for safe
+generation — record format names, key list compositions, access pattern intent, reference
+source member, and array/response cap policy.
+
+This section is distinct from File Usage (which names files and their purpose) and from
+Processing Considerations (which covers performance and locking). Compile-Oriented
+Constraints captures the naming and structural details that bridge the gap between spec-level
+file references and actual compilable code.
+
+REQUIRED at L3. CONDITIONAL at L2 (include for fixed-format RPGLE enhancement work). OMIT at L1.
+
 ## Programming Language
 
 `RPGLE` or `CLLE`. REQUIRED at all levels.

@@ -229,6 +229,24 @@ collaboration pattern -- which objects work together and what data flows between
 
 | File Name | Accessed By | Access Type (I/O/U) | Key Field(s) | Purpose |
 
+### Reference Naming Map
+
+Maps the naming layers for each file object — file name, record format name, rename alias,
+and key list name — so the downstream Program Spec and code generator know exactly which
+name to use at each layer.
+
+CONDITIONAL at L2/L3. Include for fixed-format RPGLE when naming distinctions (file name vs
+record format vs alias vs key list) affect downstream implementation. OMIT when all files use
+default format names with no renames or explicit key lists.
+
+| File Name | Record Format | Rename Alias | Key List Name | Access Style | Notes |
+
+**Contains**: One row per file where the naming is non-trivial (renamed formats, explicit
+key lists, intentional scan access).
+
+**Does NOT contain**: Field-level key definitions or KFLD compositions — those belong in the
+Program Spec's Compile-Oriented Constraints.
+
 ### Data Queue / Data Area Usage (if applicable)
 
 | Object | Type | Used By | Direction | Purpose |

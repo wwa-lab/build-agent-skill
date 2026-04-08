@@ -80,9 +80,17 @@ Identify from the user input:
 2. **Program Type** — RPGLE or CLLE (from the spec; ask only if truly missing)
 3. **Change Type** — New Program or Change to Existing
 4. **Existing Source** — current member/source for enhancement work (strongly preferred)
-5. **Requested Output Mode** — Skeleton or Full Implementation (if the user specifies one)
-6. **Style Constraints** — existing coding style, reference source, or shop conventions (optional)
-7. **RPGLE Source Format Context** — new/free, existing/fixed, or mixed-format existing source
+5. **Reference Source** (optional) — a peer or related member provided for two purposes:
+   - **Style extraction** (via source-style-profile): comment/banner style, field-comment
+     patterns, constant naming patterns, DS member naming conventions
+   - **Structural defaults** (fallback when the spec is silent): record format names, key list
+     names/composition, renamed aliases
+   Reference source **never overrides the spec**. When the spec defines a record format name,
+   key composition, or any structural fact, the spec wins. Structural defaults from reference
+   source are used only when the spec does not specify these values.
+6. **Requested Output Mode** — Skeleton or Full Implementation (if the user specifies one)
+7. **Style Constraints** — existing coding style, shop conventions (optional)
+8. **RPGLE Source Format Context** — new/free, existing/fixed, or mixed-format existing source
 
 Then determine the **Generation Mode** using this decision table:
 
@@ -191,6 +199,7 @@ Use these patterns as implementation defaults:
   rather than converting the touched area into free format
 - If generating without full current source, produce fixed-format-safe placeholders or
   replacement blocks rather than a fabricated full legacy member
+- Apply the Fixed-Format Compile Safety Rules below for all fixed-format output
 
 **Mixed-format Existing Program**
 - Preserve the local format of the touched region
@@ -210,6 +219,98 @@ tables/views, or Main Logic steps describe SELECT/INSERT/UPDATE/DELETE operation
 - For existing programs that use native I/O, preserve native I/O unless the spec explicitly
   converts to SQL
 - Include `SQLSTATE` or `SQLCODE` checks aligned to the Error Handling section
+
+#### Fixed-Format Compile Safety Rules
+
+When generating fixed-format RPGLE (existing programs or fixed-format change blocks), apply
+these rules to avoid known compile-failure and runtime-error patterns. These are learned from
+real IBM i compile review and take precedence over shorter or more convenient alternatives.
+
+**Opcode safety — avoid risky shorthand:**
+
+| Avoid | Use Instead | Why |
+|-------|------------|-----|
+| `%SUBST(...)` as Factor 2 inside `MOVE` / `MOVEL` | Stage to a work field first, then `MOVE` | `%SUBST` in Factor 2 of fixed-format `MOVE`/`MOVEL` can cause compile errors or unexpected truncation depending on the compiler level |
+| `%TRIM` / `%TRIMR` in Factor 2 of fixed-format C-specs | Stage to a work field: `EVAL wkField = %TRIM(source)` then use `wkField` | BIF nesting in fixed-format Factor 2 is fragile; `EVAL` handles BIFs safely |
+| Direct `%SUBST` on the left side of `EVAL` for complex targets | Use staged assignment with intermediate work fields | Avoids nested BIF issues in fixed-format calculation specs |
+| `CAT` with `%TRIM` in Factor 2 | Use `EVAL` with concatenation: `EVAL result = %TRIM(a) + ' ' + %TRIM(b)` | `CAT` opcode has limited BIF support in Factor 2 |
+
+**Record format and file alias discipline:**
+
+- If the **spec** defines the record format name (e.g., in Compile-Oriented Constraints or
+  File Usage), use the spec value — it always takes precedence
+- If the spec names a file but not the record format, and **reference source** is available,
+  extract the format name from the reference source's F-spec or file declaration as a
+  structural default
+- If neither spec nor reference source provides the record format name, use the file name as
+  format name (IBM i default) but add a `TODO` comment:
+  `C* TODO: Verify record format name — using file name as default`
+- For `CHAIN`, `SETLL`, `READE`, `READ`, `UPDATE`, `WRITE` — use the **record format name**,
+  not the file name, when the program uses renamed formats or multiple formats
+
+**Key list (KLIST/KFLD) discipline:**
+
+- If the **spec** defines key list composition (e.g., in Compile-Oriented Constraints), use
+  the spec values — they always take precedence
+- When the spec is silent and reference source provides `KLIST` / `KFLD` definitions, reuse
+  the exact key list name and field composition from the reference as structural defaults
+- When generating new key lists, name them descriptively (e.g., `KYORDR` for order key) and
+  ensure every `KFLD` field is declared in D-specs before the key list is used
+- Never generate a `CHAIN` or `SETLL` referencing a key list that is not defined in the same
+  member or provided via reference source
+- Verify that the number of `KFLD` entries matches the number of key fields declared in the
+  spec's File Usage or the reference file's key definition
+
+**I/O pattern enforcement (fixed-format):**
+
+Fixed-format I/O patterns for the File Access Pattern Rule:
+
+```
+C* 1:1 access — single CHAIN
+C     KYORDR        CHAIN     ORDHDRR
+C                   IF        NOT %FOUND(ORDHDR)
+C* ... not found handling
+C                   ENDIF
+
+C* 1:N access — SETLL + READE loop (NEVER a single CHAIN)
+C     KYORDR        SETLL     ORDDTLR
+C     KYORDR        READE     ORDDTLR
+C                   DOW       NOT %EOF(ORDDTL)
+C* ... process record
+C     KYORDR        READE     ORDDTLR
+C                   ENDDO
+```
+
+- For 1:N access in fixed format, always generate the full `SETLL` + `READE` + `DOW` loop
+- Never substitute a single `CHAIN` for 1:N access regardless of how few records are expected
+- Use `%EOF(filename)` or `*IN` indicators consistent with the existing program style
+
+**Work field staging rule:**
+
+When fixed-format code needs to build a composite value (concatenation, substring extraction,
+numeric conversion), use explicit work fields with clear D-spec declarations rather than
+inline BIF nesting in C-spec Factor 1 or Factor 2:
+
+```
+C* GOOD: staged work field approach
+C                   EVAL      wkCustNm = %TRIM(CUSTNM)
+C                   EVAL      wkAddr   = %TRIM(ADDR1)
+C                   EVAL      wkLine   = wkCustNm + ' - ' + wkAddr
+C                   MOVEL     wkLine        RSPTEXT
+
+C* BAD: nested BIFs in fixed-format Factor 2
+C                   MOVEL     %TRIM(CUSTNM) + ' - ' + %TRIM(ADDR1)          RSPTEXT
+```
+
+**Array and occurrence safety:**
+
+- When using arrays or multiple-occurrence data structures, always generate bounds checking
+  before indexing: `IF idx <= %ELEM(array)` or equivalent
+- Do not generate array indexing that depends on unchecked counter values
+- When the spec defines a response cap or maximum count, generate explicit overflow handling
+  (either stop accumulating or surface an overflow indicator) — never silently truncate
+
+---
 
 #### If Program Type is CLLE
 
@@ -468,6 +569,17 @@ loop language, treat as 1:N. If Main Logic says "read" or "chain" with no loop l
 as 1:1. If still ambiguous, generate a `TODO` comment noting the ambiguity and default to the
 safer 1:N pattern.
 
+### Reference Source Naming Rule
+
+When a reference source member is provided (separate from the existing source being enhanced):
+- Extract record format names, key list names, data structure names, constant naming patterns,
+  and comment/banner style from the reference member
+- Use these names in generated code unless the Program Spec explicitly overrides them
+- Do not guess naming from the reference when the reference does not contain the needed object —
+  fall back to spec-defined names or `TODO` markers
+- Reference source is **opt-in**: when not provided, this rule does not apply
+- Reference source provides naming and style evidence, not business logic or structural authority
+
 ### Existing Style Preservation Rule
 
 When current source or a style reference is provided, preserve:
@@ -560,6 +672,12 @@ Before outputting code, confirm each applicable rule:
 - [ ] No orphaned declarations — every declared file, variable, and data structure is
       referenced in generated code or explicitly marked as a placeholder
 - [ ] If Program Type is RPGLE, the generated source format follows the RPGLE format policy
+- [ ] Fixed-format RPGLE: no `%SUBST`/`%TRIM` in Factor 2 of `MOVE`/`MOVEL`/`CAT` — use staged work fields
+- [ ] Fixed-format RPGLE: record format names match reference source or spec, not guessed from file names
+- [ ] Fixed-format RPGLE: every `KLIST` referenced by `CHAIN`/`SETLL` is defined with correct `KFLD` count
+- [ ] Fixed-format RPGLE: array/occurrence access includes bounds checking
+- [ ] Fixed-format RPGLE: response-cap overflow is handled explicitly, not silently truncated
+- [ ] When reference source is provided: record format names, key list names, and naming conventions match the reference unless the spec explicitly overrides
 
 **Full Implementation only:**
 - [ ] All non-TBD Main Logic steps are implemented
@@ -590,6 +708,7 @@ Before outputting code, confirm each applicable rule:
 
 ## Reference Files
 
+- `references/source-style-profile.md` — Read when a reference source member is provided for fixed-format RPGLE. Defines what to extract and apply.
 - `references/rpgle-format-policy.md` — Read when Program Type is `RPGLE`, especially for existing fixed-format or mixed-format members.
 - `references/change-output-modes.md` — Read when choosing between `Full Implementation`, `Skeleton`, and `Change Block` output.
 - `references/clle-enhancement-patterns.md` — Read for `CLLE` enhancement work and existing-source style preservation.

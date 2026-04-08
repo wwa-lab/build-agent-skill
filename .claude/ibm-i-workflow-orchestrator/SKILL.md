@@ -136,9 +136,10 @@ Use this decision table:
 | Raw Input / Requirement Normalizer output | File definition (user mentions PF, LF, DSPF, PRTF, DDS, "add field", "new file") | `ibm-i-file-spec` | Only route directly when the request is primarily about file structure/object definition and does not require unresolved program-behavior design first |
 | File Spec | DDS source code | `ibm-i-dds-generator` | File chain: spec → DDS |
 | File Spec JSON | DDS source for PF, LF, PRTF, or DSPF | `ibm-i-dds-generator` | Route when File Spec JSON (Layer 2) is available |
-| Program Spec | Source code | `ibm-i-code-generator` | Program chain: spec → code |
+| Program Spec | Source code | `ibm-i-code-generator` | Program chain: spec → code. Apply Pre-Generation Gate for fixed-format RPGLE. |
 | Program Spec / Code | UT plan | `ibm-i-ut-plan-generator` | Recommended after Program Spec is ready or after code generation/review |
 | DDS Source | DDS validation against File Spec | `ibm-i-dds-reviewer` | Preferred DDS gate |
+| Code (generated) | Compile-safety validation | `ibm-i-compile-precheck` | Run before code reviewer for fixed-format RPGLE |
 | Code | Implementation validation | `ibm-i-code-reviewer` | Preferred code gate |
 
 ### Step 4 — Enforce Stage-Skipping Rules
@@ -165,6 +166,40 @@ would have contributed.
 - Technical Design → DDS Review without DDS source
 
 If a skip is unsafe, say so clearly and route to the missing stage.
+
+### Step 4B — Apply Pre-Generation Gate (Fixed-Format RPGLE)
+
+Before routing to `ibm-i-code-generator` for **existing fixed-format RPGLE** enhancement work,
+check whether the Program Spec resolves these compile-critical items. If any are unresolved,
+the orchestrator should **warn or block** rather than generating fragile code.
+
+**Blocking conditions** — route to clarification or spec revision instead of code generation:
+
+| Item | What to Check | If Unresolved |
+|------|--------------|---------------|
+| Record format names | Does the spec or reference source define the actual format names (e.g., `SSCUSTR`, `ORDHDRR`)? | Block — format name guessing causes compile failures |
+| Key composition | Are `KLIST`/`KFLD` compositions clear (which fields, in what order)? | Block — wrong key composition causes runtime errors |
+| Error-code mapping | Does the spec define return codes and error handling for all paths? | Block — missing error mapping causes incomplete code |
+
+**Warning conditions** — warn and surface the risk, but allow generation if the user accepts:
+
+| Item | What to Check | If Unresolved |
+|------|--------------|---------------|
+| Array-capacity behavior | Does the spec define what happens when an array/response cap overflows? | Warn — generator must choose fail-vs-truncate semantics |
+| Response-cap overflow | For programs that build response lists, is the overflow policy explicit? | Warn — silent truncation is a common production defect |
+| Direct-mode semantics | For interactive programs, are direct-entry vs menu-driven behaviors distinguished? | Warn — different flow patterns needed |
+| Reference source availability | Is a peer member available for naming and style extraction? | Warn — generated code may not match shop conventions |
+
+**Orchestrator behavior:**
+
+For L1 Lite changes (Minimal scope): warnings are informational — note them but do not block.
+
+For L2/L3 changes (Moderate/Significant/Major scope): blocking conditions must be resolved
+before code generation proceeds. The orchestrator should route to:
+- `ibm-i-program-spec` to add the missing information — record format names and key
+  composition belong in Compile-Oriented Constraints; error-code mapping belongs in
+  Return Code Definition / Error Handling, or
+- The user for direct clarification of the unresolved items
 
 ### Step 5 — Apply Review Gates and UT Plan Reminder
 
@@ -225,6 +260,7 @@ Use short, structured routing output.
 - **Blocking input:** <none / missing item>
 - **Execution decision:** <proceed now / stop and gather input>
 - **Save reminder:** <save current artifact as [suggested filename] — consumed by [downstream skill]>
+- **Pre-generation gate:** <passed / blocked — list unresolved items / not applicable>
 - **Review reminder:** <recommend ibm-i-spec-reviewer / ibm-i-dds-reviewer / ibm-i-code-reviewer / none>
 - **UT Plan reminder:** <recommend ibm-i-ut-plan-generator / not yet applicable / already produced>
 ```
@@ -247,12 +283,21 @@ This skill routes work. It does not replace:
 - `ibm-i-dds-generator`
 - `ibm-i-code-generator`
 - `ibm-i-ut-plan-generator`
+- `ibm-i-compile-precheck`
 - `ibm-i-spec-reviewer`
 - `ibm-i-dds-reviewer`
 - `ibm-i-code-reviewer`
 
 If the correct downstream skill is clear and the user wants that work done now, use the
 downstream skill rather than stopping at routing commentary.
+
+### Pre-Generation Gate Rule
+
+Before routing to `ibm-i-code-generator` for fixed-format RPGLE enhancement work (L2/L3),
+verify that record format names and key composition are resolved (Compile-Oriented Constraints)
+and that error-code mapping is resolved (Return Code Definition / Error Handling) in the
+Program Spec. If blocking conditions from Step 4B are unresolved, route to clarification or
+spec revision first. For L1 changes, warn but allow generation.
 
 ### Execution Precedence Rule
 
@@ -342,6 +387,7 @@ Before outputting workflow guidance, confirm:
 - [ ] No missing maturity was invented
 - [ ] Guidance is proportionate and creates forward motion
 - [ ] If the downstream task is already obvious and safe, the orchestrator yields to the downstream skill
+- [ ] Pre-generation gate applied when routing to code-generator for fixed-format RPGLE (L2/L3): format names, key composition, and error mapping resolved
 
 ---
 
@@ -360,6 +406,7 @@ This skill coordinates the rest of the IBM i skill system:
 | `ibm-i-dds-generator` | Use for DDS source generation from File Spec JSON (PF, LF, PRTF, DSPF — V2.2) |
 | `ibm-i-code-generator` | Use for source generation from Program Spec |
 | `ibm-i-ut-plan-generator` | Use for developer-level UT plans — recommended after Program Spec or after code generation/review |
+| `ibm-i-compile-precheck` | Use for compile-safety review of generated RPGLE/CLLE before IBM i compile |
 | `ibm-i-spec-reviewer` | Use for spec-level readiness and gate checks |
 | `ibm-i-dds-reviewer` | Use for DDS-level readiness and gate checks |
 | `ibm-i-code-reviewer` | Use for code-level readiness and gate checks |
@@ -373,7 +420,8 @@ Recommended default paths:
 4. Produce Program Spec
 5. Generate UT Plan (`ibm-i-ut-plan-generator`) — recommended before or after coding
 6. Generate code (`ibm-i-code-generator`)
-7. Review code (`ibm-i-code-reviewer`)
+7. Compile precheck (`ibm-i-compile-precheck`) — recommended for fixed-format RPGLE
+8. Review code (`ibm-i-code-reviewer`)
 
 **File Chain** (parallel to Program Chain from step 4):
 4. Produce File Spec (`ibm-i-file-spec`)
