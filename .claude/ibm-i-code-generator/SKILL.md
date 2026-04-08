@@ -310,6 +310,69 @@ C                   MOVEL     %TRIM(CUSTNM) + ' - ' + %TRIM(ADDR1)          RSPT
 - When the spec defines a response cap or maximum count, generate explicit overflow handling
   (either stop accumulating or surface an overflow indicator) — never silently truncate
 
+#### Fixed-Format Readability Rules
+
+Generated fixed-format RPGLE must not be a flat wall of C-specs. Apply these three
+readability rules to all fixed-format full-member or full-revised-member output.
+
+**Banner separator lines:**
+
+Every major code region must be preceded by a banner comment block: a separator line, a
+title line, and another separator line. The minimum regions that need banners are:
+
+- Entry parameters (`*ENTRY PLIST`)
+- Main Line
+- Each subroutine (`BEGSR` / `ENDSR`)
+
+When reference source provides a banner style (e.g., `C*****...` vs `C*===` vs `C*---`),
+use that style. When no reference source is available, use this default:
+
+```
+C**************************************************************
+C* <Section Title>
+C**************************************************************
+```
+
+The title line should describe the section's purpose:
+- `C* Entry parameters`
+- `C* Main Line`
+- `C* SR100 - Validate input parameters`
+- `C* SR200 - Process order detail`
+- `C* SR980 - Cleanup and return`
+
+**Blank-line spacing:**
+
+Insert visual separation between logical sections:
+- One blank line before each banner block
+- One blank line after `ENDSR` (before the next subroutine's banner)
+- One blank line between the H/F/D specification groups and the first C-spec
+- One blank line between the `*ENTRY PLIST` block and the Main Line banner
+
+Do NOT insert blank lines within a tight logical block (e.g., between `CHAIN` and its
+`IF NOT %FOUND` check). Spacing separates sections, not individual statements.
+
+**Subroutine naming convention:**
+
+- When reference source uses a numbered subroutine pattern (e.g., `SR100`, `SR200`,
+  `SR980`), extract and continue that numbering sequence for new subroutines
+- When the Program Spec names subroutines, the spec names win over reference source
+- When neither spec nor reference source provides subroutine names, use descriptive names
+  (e.g., `SRVALID`, `SRUPDT`, `SRERROR`) and add:
+  `C* TODO: Align subroutine name with shop convention`
+- For error/cleanup subroutines, check whether the reference source uses a high-numbered
+  convention (e.g., `SR980`, `SR990`) and follow it
+
+**Scope of readability rules:**
+
+These rules apply to **full-member** and **full-revised-member** fixed-format output. For
+**change blocks** (delta patches without full current source), follow the Existing Style
+Preservation Rule instead — if the existing source is dense with no banners, the change
+block should match that style. When the change block includes a complete new subroutine,
+add a banner for that subroutine even in delta output.
+
+For a complete example of a fixed-format full member with banners, spacing, and subroutine
+structure, see `examples/sample-rpgle-fixed-full-member.md`.
+
 ---
 
 #### If Program Type is CLLE
@@ -685,6 +748,11 @@ Before outputting code, confirm each applicable rule:
 - [ ] BR traceability is visible at meaningful code boundaries
 - [ ] The output is not missing any required interface or declared data elements from the spec
 
+**Fixed-format full-member / full-revised-member only** (not change blocks):
+- [ ] Banner separator comments exist between major code regions (entry parms, mainline, each subroutine)
+- [ ] Blank-line spacing separates logical sections (no wall-of-code output)
+- [ ] Subroutine names follow reference source naming convention when provided, or use descriptive names with TODO when not
+
 **Skeleton only:**
 - [ ] Placeholders are clearly marked
 - [ ] Placeholder locations identify the blocked step, BR, or Open Question where possible
@@ -718,6 +786,7 @@ Before outputting code, confirm each applicable rule:
 - `examples/sample-rpgle-mixed-touched-region.md` — Example of local touched-region preservation in mixed-format RPGLE.
 - `examples/sample-rpgle-embedded-sql.md` — Example of RPGLE embedded SQL generation when the Program Spec explicitly supports SQL access.
 - `examples/sample-clle-enhancement-change-block.md` — Example of a controlled CLLE enhancement change block.
+- `examples/sample-rpgle-fixed-full-member.md` — Example of a fixed-format RPGLE full member with banner separators, blank-line spacing, and subroutine structure.
 
 Read only the files relevant to the current scenario. These examples are illustrative patterns,
 not reusable production code.
