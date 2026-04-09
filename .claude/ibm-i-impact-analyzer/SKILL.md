@@ -31,7 +31,8 @@ Program Spec in the chain.
 | Existing RPGLE or CLLE source + change request | Structured impact analysis report | What does this program do today, what needs to change, and what are the risks? |
 
 If the user does not have a change request but wants to understand what a program does,
-this skill can produce a Current Program Profile without the change-specific sections.
+route to `ibm-i-program-analyzer` instead. This skill requires a CR to produce meaningful
+impact analysis.
 
 ---
 
@@ -39,12 +40,13 @@ this skill can produce a Current Program Profile without the change-specific sec
 
 Trigger on any of these signals:
 - User provides existing IBM i source code and a change request and wants impact analysis
-- User asks "what does this program do?" and provides RPGLE or CLLE source
+- User asks "what does this program do?" and provides RPGLE or CLLE source AND a change request
 - User asks "what would need to change?" for a CR against existing source
 - User asks to scope, size, or assess the impact of a change to an IBM i program
 - User wants to know the recommended spec level (L1/L2/L3) for an enhancement
 
 **Do NOT trigger** when:
+- User provides source but no change request and just wants to understand the program (use `ibm-i-program-analyzer`)
 - User asks to generate a Program Spec (use `ibm-i-program-spec`)
 - User asks to generate code (use `ibm-i-code-generator`)
 - User asks to review code quality against a Program Spec (use `ibm-i-code-reviewer`)
@@ -120,7 +122,7 @@ Determine the **Analysis Scope**:
 | Condition | Scope |
 |-----------|-------|
 | Source + CR provided | Full impact analysis |
-| Source provided, no CR | Program profile only |
+| Source provided, no CR | Route to `ibm-i-program-analyzer` — this skill requires a CR |
 | CR provided, no source | Cannot analyze — recommend providing source, or route to `ibm-i-requirement-normalizer` |
 
 Identify the **Source Language and Format**:
@@ -582,6 +584,7 @@ Before outputting the analysis, confirm:
 
 | Related Skill | How Impact Analyzer Relates |
 |---------------|---------------------------|
+| `ibm-i-program-analyzer` | Upstream peer — understands the program first; this skill adds CR-specific impact assessment |
 | `ibm-i-program-spec` | Primary downstream consumer — uses impact analysis for spec level and focus |
 | `ibm-i-file-spec` | Downstream when file changes identified |
 | `ibm-i-technical-design` | Downstream for Significant or Major scope |

@@ -31,6 +31,8 @@ Technical Design
    ├──→ Program Spec → Code Generation → Code Review       (Program Chain)
    │         └──→ UT Plan (any time after Program Spec, or after Code Review)
    └──→ File Spec → DDS Generation → DDS Review            (File Chain)
+
+Existing Source → Program Analyzer ──→ Impact Analyzer (+ CR) ──→ Program Spec → ...
 ```
 
 Supporting gates:
@@ -102,6 +104,7 @@ Classify what the user currently has:
 | Field definitions, record formats, key specs, DDS keywords, JSON Layer 2 contract | File Spec |
 | File Spec JSON with fileType, fieldDefinitions, keyDefinition — ready for DDS generation | File Spec JSON (ready for DDS) |
 | DDS source code (QDDSSRC) — PF, LF, PRTF, or DSPF member | DDS Source |
+| Existing RPGLE or CLLE source only, no CR (user wants to understand / analyze the program) | Existing Source (program comprehension candidate) |
 | Existing RPGLE or CLLE source + change request (user wants to understand impact before specifying) | Existing Source + CR (impact analysis candidate) |
 | RPGLE or CLLE source code, change block, or member patch | Code |
 
@@ -114,7 +117,8 @@ Determine what the user is trying to accomplish:
 | User Goal | Desired Outcome |
 |-----------|-----------------|
 | Clean up or structure messy request | Requirement Normalizer |
-| Understand existing program + assess change impact | Impact Analysis |
+| Understand / analyze an existing program (no CR) | Program Analysis |
+| Understand existing program + assess change impact (with CR) | Impact Analysis |
 | Formalize business behavior and scope | Functional Spec |
 | Define technical approach and impacted objects | Technical Design |
 | Produce implementation-ready logic | Program Spec |
@@ -136,6 +140,7 @@ Use this decision table:
 | Current Stage | Desired Outcome | Route To | Notes |
 |---------------|-----------------|----------|-------|
 | Mini Requirement | Program Spec → Code | `ibm-i-program-spec` | **Fast-path**: skip normalize/functional/TD when eligibility gate passes (enhancement/bug fix/new logic path/error handling — not new programs) and required fields are present. See Fast-Path Validation Rule. |
+| Existing source only (no CR) | Understand / analyze program | `ibm-i-program-analyzer` | Program comprehension entry point — understand logic, call flow, and structure before any change work |
 | Existing source + CR | Impact analysis before spec | `ibm-i-impact-analyzer` | Enhancement entry point — analyze existing program before specifying changes |
 | Raw Input | Any downstream spec/design work | `ibm-i-requirement-normalizer` | Start here unless the input is already well structured |
 | Requirement Normalizer output | Business scoping | `ibm-i-functional-spec` | Default next step |
@@ -291,6 +296,7 @@ Keep this proportionate. For an obvious route, one short paragraph may be enough
 
 This skill routes work. It does not replace:
 - `ibm-i-requirement-normalizer`
+- `ibm-i-program-analyzer`
 - `ibm-i-impact-analyzer`
 - `ibm-i-functional-spec`
 - `ibm-i-technical-design`
@@ -412,6 +418,7 @@ Use this quick map:
 | If the user has... | And wants... | Route To |
 |--------------------|-------------|----------|
 | Mini Requirement template (eligible Change Type) | Program Spec → Code (fast-path) | `ibm-i-program-spec` |
+| Existing source (no CR) | Understand / analyze program | `ibm-i-program-analyzer` |
 | Existing source + CR | Impact analysis | `ibm-i-impact-analyzer` |
 | Messy request | Structured starting point | `ibm-i-requirement-normalizer` |
 | Requirement Normalizer output | Business-functional scope | `ibm-i-functional-spec` |
@@ -452,7 +459,8 @@ This skill coordinates the rest of the IBM i skill system:
 | Skill | Orchestrator Use |
 |-------|------------------|
 | `ibm-i-requirement-normalizer` | Start here for messy or mixed input |
-| `ibm-i-impact-analyzer` | Use for enhancement work when existing source is available — analyze before specifying |
+| `ibm-i-program-analyzer` | Use for program comprehension when existing source is available but no CR — understand before changing |
+| `ibm-i-impact-analyzer` | Use for enhancement work when existing source + CR is available — analyze before specifying |
 | `ibm-i-functional-spec` | Use for business-functional formalization |
 | `ibm-i-technical-design` | Use for technical approach and object allocation |
 | `ibm-i-program-spec` | Use for implementation-ready logic and contracts |
@@ -467,7 +475,13 @@ This skill coordinates the rest of the IBM i skill system:
 
 Recommended default paths:
 
-**Program Chain:**
+**Enhancement Path (existing source):**
+0. Analyze program (`ibm-i-program-analyzer`) — understand first (optional but recommended)
+1. Impact analysis (`ibm-i-impact-analyzer`) — scope the change with CR
+2. Produce Program Spec
+3. Generate code → Compile precheck → Code review
+
+**Program Chain (new development):**
 1. Normalize raw input if needed
 2. Produce Functional Spec
 3. Produce Technical Design

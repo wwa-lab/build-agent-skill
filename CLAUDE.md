@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Purpose
 
-This repository contains a family of 14 Claude Code Skills for IBM i (AS/400) enterprise development. The skills form a complete document-and-implementation chain — from raw requirement intake through specification, code generation, review, and unit test planning — plus a file definition skill for DDS-based file objects and a workflow orchestrator for routing work through the chain.
+This repository contains a family of 15 Claude Code Skills for IBM i (AS/400) enterprise development. The skills form a complete document-and-implementation chain — from raw requirement intake through specification, code generation, review, and unit test planning — plus a file definition skill for DDS-based file objects and a workflow orchestrator for routing work through the chain.
 
 The repository contains no application code. All content is skill definitions (SKILL.md), reference documentation, and example outputs.
 
@@ -19,8 +19,8 @@ The skills form a pipeline where each layer produces a distinct artifact type:
 ```
 Raw Input → Requirement Normalizer → Functional Spec → Technical Design ──→ Program Spec → Code
                                   ↗                           │                 │            ↑
-   Existing Source + CR → Impact Analyzer                     └──→ File Spec → DDS Source    |
-                                                                              │              |
+   Existing Source → Program Analyzer ──→ Impact Analyzer     └──→ File Spec → DDS Source    |
+                                  (+ CR)  ↗                                   │              |
                                                                  UT Plan Generator (any spec or CR input)
                                           Spec Reviewer (reviews any spec layer)             |
                                           DDS Reviewer (reviews generated/written DDS source)|
@@ -31,6 +31,7 @@ Raw Input → Requirement Normalizer → Functional Spec → Technical Design �
 | Skill | Purpose | Key Abstraction |
 |-------|---------|-----------------|
 | `ibm-i-requirement-normalizer` | Normalizes messy input into structured requirement package | Candidate items (CF-nn, CBR-nn, CE-nn) — not final spec entries |
+| `ibm-i-program-analyzer` | Analyzes existing RPGLE/CLLE source to map logic, call flow, and structure | Program comprehension — entry point for understanding unfamiliar code |
 | `ibm-i-impact-analyzer` | Analyzes existing source + CR to produce impact analysis | Source-level structural analysis — entry point for enhancement work |
 | `ibm-i-functional-spec` | Business-functional document: current/future behavior, acceptance criteria | Business-visible behavior — no technical structure |
 | `ibm-i-technical-design` | Design document: module allocation, processing stages, impact analysis | Design-level — no implementation steps |
@@ -84,6 +85,8 @@ Business rules use the same BR-xx numbering across the entire chain. The express
 │   ├── SKILL.md                    # V2.1.2
 │   ├── references/                 # section-guide, tier-guide, json-schema, interop-model, validation-rules
 │   └── examples/                   # sample-pf-spec, sample-lf-spec, sample-dspf-spec, sample-prtf-spec, sample-pf-enhancement-spec
+├── ibm-i-program-analyzer/
+│   └── SKILL.md                    # V1.0 — source logic comprehension and call flow mapping
 ├── ibm-i-impact-analyzer/
 │   └── SKILL.md                    # V1.2 — pre-spec change impact analysis
 ├── ibm-i-dds-generator/
