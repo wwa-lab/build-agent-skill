@@ -110,6 +110,8 @@ Mini Requirement
        │    Pass / Manual Revision
        │
        └──→ UT Plan (ibm-i-ut-plan-generator) ← parallel, optional
+                  ↓
+             Test Scaffold (ibm-i-test-scaffold) ← compile + mock data + PASS/FAIL verification
 ```
 
 This flow matches the pilot team's actual workflow. The full chain (Requirement Normalizer →

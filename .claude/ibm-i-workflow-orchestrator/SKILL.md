@@ -29,7 +29,7 @@ Functional Spec
    ↓
 Technical Design
    ├──→ Program Spec → Code Generation → Code Review       (Program Chain)
-   │         └──→ UT Plan (any time after Program Spec, or after Code Review)
+   │         └──→ UT Plan → Test Scaffold (SQL/CL scripts)
    └──→ File Spec → DDS Generation → DDS Review            (File Chain)
 
 Existing Source → Program Analyzer ──→ Impact Analyzer (+ CR) ──→ Program Spec → ...
@@ -44,7 +44,7 @@ Supporting gates:
 
 ```
 Mini Requirement → Program Spec → Spec Review → Code Generation → Compile Precheck → Code Review
-                                                         └──→ UT Plan (parallel, optional)
+                                                         └──→ UT Plan → Test Scaffold (parallel, optional)
 ```
 
 The fast-path bypasses the full chain for daily enhancement work when a Mini Requirement
@@ -126,6 +126,7 @@ Determine what the user is trying to accomplish:
 | Generate DDS source from a File Spec | DDS Generation |
 | Generate RPGLE or CLLE source | Code Generation |
 | Produce developer-level UT cases | UT Plan |
+| Generate test scripts, mock data, compile commands, verification SQL | Test Scaffold |
 | Validate a spec artifact | Spec Review |
 | Validate DDS source against a File Spec | DDS Review |
 | Validate code against a Program Spec | Code Review |
@@ -155,6 +156,8 @@ Use this decision table:
 | File Spec JSON | DDS source for PF, LF, PRTF, or DSPF | `ibm-i-dds-generator` | Route when File Spec JSON (Layer 2) is available |
 | Program Spec | Source code | `ibm-i-code-generator` | Program chain: spec → code. Apply Pre-Generation Gate for fixed-format RPGLE. |
 | Program Spec / Code | UT plan | `ibm-i-ut-plan-generator` | Recommended after Program Spec is ready or after code generation/review |
+| UT Plan | Executable test scripts (SQL/CL) | `ibm-i-test-scaffold` | Generate compile commands, mock data setup, execution commands, and PASS/FAIL verification scripts |
+| Program Spec + test scenarios (no UT Plan) | Executable test scripts (SQL/CL) | `ibm-i-test-scaffold` | Secondary input path — when user describes test scenarios directly with a Program Spec, skip UT Plan |
 | DDS Source | DDS validation against File Spec | `ibm-i-dds-reviewer` | Preferred DDS gate |
 | Code (generated) | Compile-safety validation | `ibm-i-compile-precheck` | Run before code reviewer for fixed-format RPGLE |
 | Code | Implementation validation | `ibm-i-code-reviewer` | Preferred code gate |
@@ -235,11 +238,16 @@ before code generation proceeds. The orchestrator should route to:
 | File Spec | Recommend `ibm-i-spec-reviewer` before DDS generation |
 | Generated or manual DDS source | Recommend `ibm-i-dds-reviewer` before file creation/compilation |
 | Generated or manual code | Recommend `ibm-i-code-reviewer` before build/integration/test; also recommend `ibm-i-ut-plan-generator` if UT plan was not yet produced |
+| UT Plan | Recommend `ibm-i-test-scaffold` to generate executable test scripts (SQL/CL) |
 
 **UT Plan proactive triggers:**
 - After Program Spec is produced → remind: "Consider generating a UT Plan before coding"
 - After code generation or code review → remind: "Consider generating a UT Plan before SIT handoff"
 - The user may decline — but the orchestrator must surface the option
+
+**Test Scaffold proactive triggers:**
+- After UT Plan is produced → remind: "Consider generating test scripts (`ibm-i-test-scaffold`) for automated data setup and PASS/FAIL verification"
+- The test scaffold supports TDD — it can be generated before code exists
 
 For trivial L1-level changes (single-field change, flag toggle), the orchestrator may note that review and UT plan are optional rather than recommended. For L2/L3 changes, always recommend both.
 
@@ -305,6 +313,7 @@ This skill routes work. It does not replace:
 - `ibm-i-dds-generator`
 - `ibm-i-code-generator`
 - `ibm-i-ut-plan-generator`
+- `ibm-i-test-scaffold`
 - `ibm-i-compile-precheck`
 - `ibm-i-spec-reviewer`
 - `ibm-i-dds-reviewer`
@@ -429,6 +438,8 @@ Use this quick map:
 | File Spec (JSON) | DDS source code | `ibm-i-dds-generator` |
 | Program Spec | RPGLE or CLLE source | `ibm-i-code-generator` |
 | Program Spec / Code | UT plan | `ibm-i-ut-plan-generator` |
+| UT Plan | Test scripts / mock data / verification SQL | `ibm-i-test-scaffold` |
+| Program Spec + test scenarios (no UT Plan) | Test scripts / mock data / verification SQL | `ibm-i-test-scaffold` |
 | Any spec artifact | Spec validation | `ibm-i-spec-reviewer` |
 | DDS source | Validation against File Spec | `ibm-i-dds-reviewer` |
 | Code | Validation against Program Spec | `ibm-i-code-reviewer` |
@@ -468,6 +479,7 @@ This skill coordinates the rest of the IBM i skill system:
 | `ibm-i-dds-generator` | Use for DDS source generation from File Spec JSON (PF, LF, PRTF, DSPF — V2.2) |
 | `ibm-i-code-generator` | Use for source generation from Program Spec |
 | `ibm-i-ut-plan-generator` | Use for developer-level UT plans — recommended after Program Spec or after code generation/review |
+| `ibm-i-test-scaffold` | Use for executable test scripts (SQL INSERT, CL CALL, PASS/FAIL verification) from UT Plans — recommended after UT Plan is produced |
 | `ibm-i-compile-precheck` | Use for compile-safety review of generated RPGLE/CLLE before IBM i compile |
 | `ibm-i-spec-reviewer` | Use for spec-level readiness and gate checks |
 | `ibm-i-dds-reviewer` | Use for DDS-level readiness and gate checks |
@@ -487,9 +499,11 @@ Recommended default paths:
 3. Produce Technical Design
 4. Produce Program Spec
 5. Generate UT Plan (`ibm-i-ut-plan-generator`) — recommended before or after coding
-6. Generate code (`ibm-i-code-generator`)
-7. Compile precheck (`ibm-i-compile-precheck`) — recommended for fixed-format RPGLE
-8. Review code (`ibm-i-code-reviewer`)
+6. Generate test scaffold (`ibm-i-test-scaffold`) — executable SQL/CL from UT Plan (supports TDD)
+7. Generate code (`ibm-i-code-generator`)
+8. Compile precheck (`ibm-i-compile-precheck`) — recommended for fixed-format RPGLE
+9. Review code (`ibm-i-code-reviewer`)
+10. Run test scripts on IBM i — verify PASS/FAIL
 
 **File Chain** (parallel to Program Chain from step 4):
 4. Produce File Spec (`ibm-i-file-spec`)
