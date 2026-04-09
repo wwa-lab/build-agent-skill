@@ -85,6 +85,11 @@ Determine what is being reviewed:
 4. **Current Source Context** — existing member/source for enhancement comparison (if provided)
 5. **Review Scope** — Full review or targeted review
 6. **RPGLE Source Format Context** — new/free, existing/fixed, or mixed-format existing source
+7. **Organization Coding Standard** — shared repository-local standard in
+   `.claude/ibm-i-code-generator/references/AS400 Program Development Guideline.md`
+   when present
+8. **Source Validator Rules** — review-specific override rules in
+   `references/source-validator-rules.md` when present
 
 If the code type is unclear, identify the most likely language conservatively and note any
 mixed signals as a finding.
@@ -98,6 +103,15 @@ If a Program Spec is not provided:
 - explicitly state that full implementation validation is limited without the controlling spec
 
 If you need a stable full-review order, read `references/review-checkpoints.md`.
+If `references/source-validator-rules.md` is present, use it as the highest-priority
+review-specific ruleset. When it conflicts with
+`.claude/ibm-i-code-generator/references/AS400 Program Development Guideline.md`,
+`references/source-validator-rules.md` wins. Do not let either override the Program Spec or
+required existing-source preservation.
+If `.claude/ibm-i-code-generator/references/AS400 Program Development Guideline.md` is
+present, use it as an additional review baseline for naming, comment/header format,
+declaration layout, enhancement conventions, error-handling idioms, and explicitly forbidden
+patterns. Do not let it override the Program Spec or required existing-source preservation.
 
 ### Step 2 — Apply Review Dimensions
 
@@ -257,6 +271,10 @@ be inferred safely from the code itself.>
 
 **Language:** <RPGLE / CLLE>
 **Expected format/style policy:** <what should apply here>
+**Source validator rules:** <Present / Not present>
+**Source validator verdict:** <Compliant / Minor drift / Significant drift / N/A>
+**Organization coding standard:** <Present / Not present>
+**Organization guideline verdict:** <Compliant / Minor drift / Significant drift / N/A>
 **Verdict:** <Compliant / Minor drift / Significant drift>
 
 <RPGLE policy reference:>
@@ -271,6 +289,19 @@ be inferred safely from the code itself.>
 
 <CLLE policy reference:>
 - Preserve existing declaration ordering, MONMSG scope, command structure, and message handling idioms for enhancements
+
+<Source validator rules reference (if present):>
+- Review against `references/source-validator-rules.md` first when it defines review-specific
+  validator rules or overrides
+- If it conflicts with the general development guideline, the validator rules win
+- Program Spec and enhancement-safe existing-source preservation still take precedence
+
+<Organization coding standard reference (if present):>
+- Review mandatory naming, header/comment format, declaration layout, enhancement conventions,
+  error-handling idioms, and explicitly forbidden patterns from
+  `.claude/ibm-i-code-generator/references/AS400 Program Development Guideline.md`
+- Program Spec and enhancement-safe existing-source preservation override the organization
+  guideline when they conflict
 
 <If drift is detected, describe specifically:>
 - What format/style was expected
@@ -426,6 +457,47 @@ For RPGLE reviews, apply this format policy:
 Do not treat free-format RPGLE as automatically better for existing fixed-format or mixed-format
 programs. Review against the intended policy, not against modernization preference.
 
+### Source Validator Rules Review Rule
+
+When `references/source-validator-rules.md` is present, review the code against it first for
+review-specific validator rules, severity expectations, and override cases.
+
+Use this precedence order when deciding whether a deviation is a defect:
+1. Program Spec and explicit user instruction
+2. Existing source and touched-region preservation requirements for enhancements
+3. `references/source-validator-rules.md`
+4. `.claude/ibm-i-code-generator/references/AS400 Program Development Guideline.md`
+5. Skill defaults and neutral fallback expectations
+
+Do not use the validator rules to invent missing business rules, object names, file names,
+field names, interfaces, or side effects. If the validator rules are themselves overridden by
+the Program Spec or by required existing-source preservation, do not raise that as a defect.
+
+### Organization Coding Standard Review Rule
+
+When `.claude/ibm-i-code-generator/references/AS400 Program Development Guideline.md` is
+present, review the code against its mandatory organization rules for:
+- naming conventions
+- header, banner, and comment format
+- declaration ordering and layout
+- routine / subroutine structure
+- enhancement conventions
+- error-handling idioms
+- explicitly forbidden or discouraged patterns
+
+Use this precedence order when deciding whether a deviation is a defect:
+1. Program Spec and explicit user instruction
+2. Existing source and touched-region preservation requirements for enhancements
+3. `references/source-validator-rules.md` when present
+4. Organization coding standard
+5. Skill defaults and neutral fallback expectations
+
+Do not use the organization guideline to invent missing business rules, object names, file
+names, field names, interfaces, or side effects. If the guideline is overridden by the Program
+Spec, by required existing-source preservation, or by
+`references/source-validator-rules.md`, do not raise that as a defect; note the override only
+when it helps explain the verdict.
+
 ### Enhancement Safety Rule
 
 For enhancement reviews:
@@ -517,6 +589,8 @@ Before outputting the review, confirm:
 - [ ] Program Spec limitations or missing current-source context were stated explicitly when relevant
 - [ ] Spec Alignment Check is present with a clear verdict
 - [ ] Format and Style Policy Check is present with a clear verdict
+- [ ] When `references/source-validator-rules.md` is present: the review applies it ahead of the general development guideline, without letting it override the Program Spec or enhancement-safe existing-source preservation
+- [ ] When `.claude/ibm-i-code-generator/references/AS400 Program Development Guideline.md` is present: the review reflects its mandatory rules without letting it override the Program Spec or enhancement-safe existing-source preservation
 - [ ] Enhancement Safety Check is present when reviewing a change to existing code
 - [ ] Readiness Decision is stated with a clear verdict
 - [ ] Fix path judgment is stated when targeted patching is not obviously sufficient
@@ -530,6 +604,8 @@ Before outputting the review, confirm:
 
 ## Reference Files
 
+- `references/source-validator-rules.md` — Review-specific validator rules and overrides. Read first when present. If it conflicts with the general development guideline, this file wins for review behavior.
+- `.claude/ibm-i-code-generator/references/AS400 Program Development Guideline.md` — Shared repository-local organization coding standard. Read when present for mandatory naming, comment/layout, enhancement-convention, error-handling, and forbidden-pattern review.
 - `references/review-checkpoints.md` — Read when running a full code review or when you want a stable review order.
 - `references/rpgle-review-policy.md` — Read for RPGLE format-policy checks, indicator handling, and mixed-format touched-region review.
 - `references/enhancement-review-patterns.md` — Read for enhancement review scope, delta-first expectations, and controlled change-block review.

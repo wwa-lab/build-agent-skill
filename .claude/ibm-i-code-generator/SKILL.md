@@ -91,6 +91,8 @@ Identify from the user input:
 6. **Requested Output Mode** — Skeleton or Full Implementation (if the user specifies one)
 7. **Style Constraints** — existing coding style, shop conventions (optional)
 8. **RPGLE Source Format Context** — new/free, existing/fixed, or mixed-format existing source
+9. **Organization Coding Standard** (optional) — repository-local development standard in
+   `references/AS400 Program Development Guideline.md` when present
 
 Then determine the **Generation Mode** using this decision table:
 
@@ -659,6 +661,35 @@ When current source or a style reference is provided, preserve:
 
 Do not modernize or refactor unrelated code unless explicitly asked.
 
+### Organization Coding Standard Rule
+
+When `references/AS400 Program Development Guideline.md` is present, treat it as the
+repository-local development standard for code generation.
+
+Apply the guideline to:
+- Naming conventions
+- Header / banner / comment format
+- Modification history layout
+- Declaration ordering and layout
+- Routine / subroutine structure
+- Error-handling idioms
+- Indicator and data-access conventions
+- Explicitly forbidden constructs or discouraged patterns
+
+Use this precedence order when rules conflict:
+1. Program Spec and explicit user instruction
+2. Existing source and touched-region preservation requirements for enhancements
+3. `references/AS400 Program Development Guideline.md`
+4. Skill defaults, examples, and neutral fallback patterns
+
+The organization guideline can constrain **how** the code is generated, but it must not be
+used to invent business logic, object names, file names, field names, return codes, or
+interfaces that are absent from the Program Spec.
+
+If the organization guideline conflicts with the Program Spec or with required enhancement-safe
+preservation of the existing source, follow the Program Spec / existing source and note the
+conflict briefly in pre-code notes or a TODO marker when needed.
+
 ### RPGLE Format Policy Rule
 
 For RPGLE generation, use this policy:
@@ -741,6 +772,7 @@ Before outputting code, confirm each applicable rule:
 - [ ] Fixed-format RPGLE: array/occurrence access includes bounds checking
 - [ ] Fixed-format RPGLE: response-cap overflow is handled explicitly, not silently truncated
 - [ ] When reference source is provided: record format names, key list names, and naming conventions match the reference unless the spec explicitly overrides
+- [ ] When `references/AS400 Program Development Guideline.md` is present: generated code follows its mandatory naming, formatting, structure, and forbidden-pattern rules unless the Program Spec or existing source safely overrides them
 
 **Full Implementation only:**
 - [ ] All non-TBD Main Logic steps are implemented
@@ -776,6 +808,7 @@ Before outputting code, confirm each applicable rule:
 
 ## Reference Files
 
+- `references/AS400 Program Development Guideline.md` — Optional repository-local organization development standard. Read when present and use it as the default generation baseline unless the Program Spec or enhancement-safe preservation rules override it.
 - `references/source-style-profile.md` — Read when a reference source member is provided for fixed-format RPGLE. Defines what to extract and apply.
 - `references/rpgle-format-policy.md` — Read when Program Type is `RPGLE`, especially for existing fixed-format or mixed-format members.
 - `references/change-output-modes.md` — Read when choosing between `Full Implementation`, `Skeleton`, and `Change Block` output.
