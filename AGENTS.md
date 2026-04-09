@@ -6,10 +6,10 @@ This file provides guidance to Codex and other AI agents when working with this 
 
 ## Repository Purpose
 
-This repository contains a family of 14 Claude Code Skills for IBM i (AS/400) enterprise
+This repository contains a family of 16 Claude Code Skills for IBM i (AS/400) enterprise
 development. The skills form two complete delivery pipelines — a **Program Chain** for
-RPGLE/CLLE code and a **File Chain** for DDS source — plus spec review, DDS review, code
-review, unit test planning, and workflow orchestration.
+RPGLE/CLLE code and a **File Chain** for DDS source — plus program analysis, spec review,
+DDS review, code review, unit test planning, test scaffold generation, and workflow orchestration.
 
 The repository contains no application code. All content is skill definitions (SKILL.md),
 reference documentation, example outputs, and test harnesses.
@@ -21,29 +21,32 @@ reference documentation, example outputs, and test harnesses.
 ```
 Raw Input → Requirement Normalizer → Functional Spec → Technical Design
                                   ↗                           │
-   Existing Source + CR → Impact Analyzer    ┌────────────────┤
-                                             │                │
-                                      Program Chain:    File Chain:
-                                      Program Spec      File Spec
-                                          ↓                 ↓
-                                      Code Generator    DDS Generator
-                                          ↓                 ↓
-                                      Code Reviewer     DDS Reviewer
+   Existing Source → Program Analyzer ──→ Impact Analyzer     ┌────────────────┤
+                                  (+ CR)  ↗                   │                │
+                                                       Program Chain:    File Chain:
+                                                       Program Spec      File Spec
+                                                           ↓                 ↓
+                                                       Code Generator    DDS Generator
+                                                           ↓                 ↓
+                                                       Code Reviewer     DDS Reviewer
 
         UT Plan Generator ─── produces unit test plans from any spec/CR/raw input
+            ↓
+        Test Scaffold ─── generates executable SQL/CL test scripts from UT Plans
         Spec Reviewer ──── reviews any spec artifact
         Workflow Orchestrator ──── routes work through the chain
 ```
 
 ---
 
-## All 14 Skills
+## All 16 Skills
 
-### Generation & Analysis Skills (9)
+### Generation & Analysis Skills (11)
 
 | Skill | Path | Version | What It Produces |
 |-------|------|---------|-----------------|
 | `ibm-i-requirement-normalizer` | `.claude/ibm-i-requirement-normalizer/` | V1.0 | Structured requirement package from messy input |
+| `ibm-i-program-analyzer` | `.claude/ibm-i-program-analyzer/` | V1.0 | Program logic analysis with call flow diagrams |
 | `ibm-i-impact-analyzer` | `.claude/ibm-i-impact-analyzer/` | V1.2 | Impact analysis of existing source + CR |
 | `ibm-i-functional-spec` | `.claude/ibm-i-functional-spec/` | V1.0 | Business-functional document |
 | `ibm-i-technical-design` | `.claude/ibm-i-technical-design/` | V1.0 | Design document with module allocation |
@@ -52,6 +55,7 @@ Raw Input → Requirement Normalizer → Functional Spec → Technical Design
 | `ibm-i-code-generator` | `.claude/ibm-i-code-generator/` | V1.0 | RPGLE or CLLE source from Program Spec |
 | `ibm-i-dds-generator` | `.claude/ibm-i-dds-generator/` | V2.2 | DDS source from File Spec JSON (PF/LF/PRTF/DSPF) |
 | `ibm-i-ut-plan-generator` | `.claude/ibm-i-ut-plan-generator/` | V1.2 | Unit test plan from specs, CRs, or raw input |
+| `ibm-i-test-scaffold` | `.claude/ibm-i-test-scaffold/` | V1.1 | Executable SQL/CL test scripts from UT Plans |
 
 ### Review Skills (4)
 
@@ -81,10 +85,12 @@ All skills live under `.claude/` (not `.Codex/`). Each skill's behavior is defin
 ├── ibm-i-technical-design/          # V1.0 + references, examples
 ├── ibm-i-program-spec/              # V2.5 + section-guide, tier-guide, samples
 ├── ibm-i-file-spec/                 # V2.1.2 + references (5), examples (5)
+├── ibm-i-program-analyzer/          # V1.0 — source logic comprehension and call flow
 ├── ibm-i-impact-analyzer/           # V1.2 — pre-spec change impact analysis
 ├── ibm-i-dds-generator/             # V2.2 + examples (6), tests (31 cases)
 ├── ibm-i-code-generator/            # V1.0 + references (3), examples (6), tests (8 cases)
 ├── ibm-i-ut-plan-generator/         # V1.2 — unit test plan from specs, CRs, raw input
+├── ibm-i-test-scaffold/             # V1.1 + examples (4), tests (6 cases)
 ├── ibm-i-compile-precheck/          # V1.0 — pre-compile safety review + checklists
 ├── ibm-i-dds-reviewer/              # V1.2
 ├── ibm-i-spec-reviewer/             # V1.1 + examples
@@ -98,6 +104,7 @@ All skills live under `.claude/` (not `.Codex/`). Each skill's behavior is defin
 |-------|-------------|-----------|--------|
 | `ibm-i-dds-generator` | `.claude/ibm-i-dds-generator/tests/` | 31 cases | `runner.sh` — structural checks on generated DDS |
 | `ibm-i-code-generator` | `.claude/ibm-i-code-generator/tests/` | 8 cases (3 layers) | `runner.sh` — L1 structural, L2 pipeline, L3 enhancement |
+| `ibm-i-test-scaffold` | `.claude/ibm-i-test-scaffold/tests/` | 6 cases | `runner.sh` — scaffold structure, compile/data/verify coverage, IBM i idiom checks |
 
 ---
 
@@ -127,6 +134,7 @@ Program Spec and File Spec are peer artifacts. When File Specs exist:
 | If you have... | And want... | Use... |
 |----------------|-------------|--------|
 | Messy request | Structured starting point | `ibm-i-requirement-normalizer` |
+| Existing source (no CR) | Understand / analyze program | `ibm-i-program-analyzer` |
 | Existing source + CR | Impact analysis | `ibm-i-impact-analyzer` |
 | Requirement | Business scope | `ibm-i-functional-spec` |
 | Functional Spec | Technical approach | `ibm-i-technical-design` |
@@ -135,6 +143,7 @@ Program Spec and File Spec are peer artifacts. When File Specs exist:
 | File Spec JSON | DDS source code | `ibm-i-dds-generator` |
 | Program Spec | RPGLE/CLLE source | `ibm-i-code-generator` |
 | Any spec or CR | Unit test plan | `ibm-i-ut-plan-generator` |
+| UT Plan | Test scripts (SQL/CL) | `ibm-i-test-scaffold` |
 | Generated RPGLE/CLLE | Compile safety check | `ibm-i-compile-precheck` |
 | Any spec | Quality check | `ibm-i-spec-reviewer` |
 | DDS source | Validation | `ibm-i-dds-reviewer` |

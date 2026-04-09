@@ -29,8 +29,10 @@ Functional Spec
    ↓
 Technical Design
    ├──→ Program Spec → Code Generation → Code Review       (Program Chain)
-   │         └──→ UT Plan (any time after Program Spec, or after Code Review)
+   │         └──→ UT Plan → Test Scaffold (SQL/CL scripts)
    └──→ File Spec → DDS Generation → DDS Review            (File Chain)
+
+Existing Source → Program Analyzer ──→ Impact Analyzer (+ CR) ──→ Program Spec → ...
 ```
 
 Supporting gates:
@@ -42,7 +44,7 @@ Supporting gates:
 
 ```
 Mini Requirement → Program Spec → Spec Review → Code Generation → Compile Precheck → Code Review
-                                                         └──→ UT Plan (parallel, optional)
+                                                         └──→ UT Plan → Test Scaffold (parallel, optional)
 ```
 
 The fast-path bypasses the full chain for daily enhancement work when a Mini Requirement
@@ -102,6 +104,7 @@ Classify what the user currently has:
 | Field definitions, record formats, key specs, DDS keywords, JSON Layer 2 contract | File Spec |
 | File Spec JSON with fileType, fieldDefinitions, keyDefinition — ready for DDS generation | File Spec JSON (ready for DDS) |
 | DDS source code (QDDSSRC) — PF, LF, PRTF, or DSPF member | DDS Source |
+| Existing RPGLE or CLLE source only, no CR (user wants to understand / analyze the program) | Existing Source (program comprehension candidate) |
 | Existing RPGLE or CLLE source + change request (user wants to understand impact before specifying) | Existing Source + CR (impact analysis candidate) |
 | RPGLE or CLLE source code, change block, or member patch | Code |
 
@@ -114,7 +117,8 @@ Determine what the user is trying to accomplish:
 | User Goal | Desired Outcome |
 |-----------|-----------------|
 | Clean up or structure messy request | Requirement Normalizer |
-| Understand existing program + assess change impact | Impact Analysis |
+| Understand / analyze an existing program (no CR) | Program Analysis |
+| Understand existing program + assess change impact (with CR) | Impact Analysis |
 | Formalize business behavior and scope | Functional Spec |
 | Define technical approach and impacted objects | Technical Design |
 | Produce implementation-ready logic | Program Spec |
@@ -122,6 +126,7 @@ Determine what the user is trying to accomplish:
 | Generate DDS source from a File Spec | DDS Generation |
 | Generate RPGLE or CLLE source | Code Generation |
 | Produce developer-level UT cases | UT Plan |
+| Generate test scripts, mock data, compile commands, verification SQL | Test Scaffold |
 | Validate a spec artifact | Spec Review |
 | Validate DDS source against a File Spec | DDS Review |
 | Validate code against a Program Spec | Code Review |
@@ -136,6 +141,7 @@ Use this decision table:
 | Current Stage | Desired Outcome | Route To | Notes |
 |---------------|-----------------|----------|-------|
 | Mini Requirement | Program Spec → Code | `ibm-i-program-spec` | **Fast-path**: skip normalize/functional/TD when eligibility gate passes (enhancement/bug fix/new logic path/error handling — not new programs) and required fields are present. See Fast-Path Validation Rule. |
+| Existing source only (no CR) | Understand / analyze program | `ibm-i-program-analyzer` | Program comprehension entry point — understand logic, call flow, and structure before any change work |
 | Existing source + CR | Impact analysis before spec | `ibm-i-impact-analyzer` | Enhancement entry point — analyze existing program before specifying changes |
 | Raw Input | Any downstream spec/design work | `ibm-i-requirement-normalizer` | Start here unless the input is already well structured |
 | Requirement Normalizer output | Business scoping | `ibm-i-functional-spec` | Default next step |
@@ -150,6 +156,8 @@ Use this decision table:
 | File Spec JSON | DDS source for PF, LF, PRTF, or DSPF | `ibm-i-dds-generator` | Route when File Spec JSON (Layer 2) is available |
 | Program Spec | Source code | `ibm-i-code-generator` | Program chain: spec → code. Apply Pre-Generation Gate for fixed-format RPGLE. |
 | Program Spec / Code | UT plan | `ibm-i-ut-plan-generator` | Recommended after Program Spec is ready or after code generation/review |
+| UT Plan | Executable test scripts (SQL/CL) | `ibm-i-test-scaffold` | Generate compile commands, mock data setup, execution commands, and PASS/FAIL verification scripts |
+| Program Spec + test scenarios (no UT Plan) | Executable test scripts (SQL/CL) | `ibm-i-test-scaffold` | Secondary input path — when user describes test scenarios directly with a Program Spec, skip UT Plan |
 | DDS Source | DDS validation against File Spec | `ibm-i-dds-reviewer` | Preferred DDS gate |
 | Code (generated) | Compile-safety validation | `ibm-i-compile-precheck` | Run before code reviewer for fixed-format RPGLE |
 | Code | Implementation validation | `ibm-i-code-reviewer` | Preferred code gate |
@@ -230,11 +238,16 @@ before code generation proceeds. The orchestrator should route to:
 | File Spec | Recommend `ibm-i-spec-reviewer` before DDS generation |
 | Generated or manual DDS source | Recommend `ibm-i-dds-reviewer` before file creation/compilation |
 | Generated or manual code | Recommend `ibm-i-code-reviewer` before build/integration/test; also recommend `ibm-i-ut-plan-generator` if UT plan was not yet produced |
+| UT Plan | Recommend `ibm-i-test-scaffold` to generate executable test scripts (SQL/CL) |
 
 **UT Plan proactive triggers:**
 - After Program Spec is produced → remind: "Consider generating a UT Plan before coding"
 - After code generation or code review → remind: "Consider generating a UT Plan before SIT handoff"
 - The user may decline — but the orchestrator must surface the option
+
+**Test Scaffold proactive triggers:**
+- After UT Plan is produced → remind: "Consider generating test scripts (`ibm-i-test-scaffold`) for automated data setup and PASS/FAIL verification"
+- The test scaffold supports TDD — it can be generated before code exists
 
 For trivial L1-level changes (single-field change, flag toggle), the orchestrator may note that review and UT plan are optional rather than recommended. For L2/L3 changes, always recommend both.
 
@@ -291,6 +304,7 @@ Keep this proportionate. For an obvious route, one short paragraph may be enough
 
 This skill routes work. It does not replace:
 - `ibm-i-requirement-normalizer`
+- `ibm-i-program-analyzer`
 - `ibm-i-impact-analyzer`
 - `ibm-i-functional-spec`
 - `ibm-i-technical-design`
@@ -299,6 +313,7 @@ This skill routes work. It does not replace:
 - `ibm-i-dds-generator`
 - `ibm-i-code-generator`
 - `ibm-i-ut-plan-generator`
+- `ibm-i-test-scaffold`
 - `ibm-i-compile-precheck`
 - `ibm-i-spec-reviewer`
 - `ibm-i-dds-reviewer`
@@ -412,6 +427,7 @@ Use this quick map:
 | If the user has... | And wants... | Route To |
 |--------------------|-------------|----------|
 | Mini Requirement template (eligible Change Type) | Program Spec → Code (fast-path) | `ibm-i-program-spec` |
+| Existing source (no CR) | Understand / analyze program | `ibm-i-program-analyzer` |
 | Existing source + CR | Impact analysis | `ibm-i-impact-analyzer` |
 | Messy request | Structured starting point | `ibm-i-requirement-normalizer` |
 | Requirement Normalizer output | Business-functional scope | `ibm-i-functional-spec` |
@@ -422,6 +438,8 @@ Use this quick map:
 | File Spec (JSON) | DDS source code | `ibm-i-dds-generator` |
 | Program Spec | RPGLE or CLLE source | `ibm-i-code-generator` |
 | Program Spec / Code | UT plan | `ibm-i-ut-plan-generator` |
+| UT Plan | Test scripts / mock data / verification SQL | `ibm-i-test-scaffold` |
+| Program Spec + test scenarios (no UT Plan) | Test scripts / mock data / verification SQL | `ibm-i-test-scaffold` |
 | Any spec artifact | Spec validation | `ibm-i-spec-reviewer` |
 | DDS source | Validation against File Spec | `ibm-i-dds-reviewer` |
 | Code | Validation against Program Spec | `ibm-i-code-reviewer` |
@@ -452,7 +470,8 @@ This skill coordinates the rest of the IBM i skill system:
 | Skill | Orchestrator Use |
 |-------|------------------|
 | `ibm-i-requirement-normalizer` | Start here for messy or mixed input |
-| `ibm-i-impact-analyzer` | Use for enhancement work when existing source is available — analyze before specifying |
+| `ibm-i-program-analyzer` | Use for program comprehension when existing source is available but no CR — understand before changing |
+| `ibm-i-impact-analyzer` | Use for enhancement work when existing source + CR is available — analyze before specifying |
 | `ibm-i-functional-spec` | Use for business-functional formalization |
 | `ibm-i-technical-design` | Use for technical approach and object allocation |
 | `ibm-i-program-spec` | Use for implementation-ready logic and contracts |
@@ -460,6 +479,7 @@ This skill coordinates the rest of the IBM i skill system:
 | `ibm-i-dds-generator` | Use for DDS source generation from File Spec JSON (PF, LF, PRTF, DSPF — V2.2) |
 | `ibm-i-code-generator` | Use for source generation from Program Spec |
 | `ibm-i-ut-plan-generator` | Use for developer-level UT plans — recommended after Program Spec or after code generation/review |
+| `ibm-i-test-scaffold` | Use for executable test scripts (SQL INSERT, CL CALL, PASS/FAIL verification) from UT Plans — recommended after UT Plan is produced |
 | `ibm-i-compile-precheck` | Use for compile-safety review of generated RPGLE/CLLE before IBM i compile |
 | `ibm-i-spec-reviewer` | Use for spec-level readiness and gate checks |
 | `ibm-i-dds-reviewer` | Use for DDS-level readiness and gate checks |
@@ -467,15 +487,23 @@ This skill coordinates the rest of the IBM i skill system:
 
 Recommended default paths:
 
-**Program Chain:**
+**Enhancement Path (existing source):**
+0. Analyze program (`ibm-i-program-analyzer`) — understand first (optional but recommended)
+1. Impact analysis (`ibm-i-impact-analyzer`) — scope the change with CR
+2. Produce Program Spec
+3. Generate code → Compile precheck → Code review
+
+**Program Chain (new development):**
 1. Normalize raw input if needed
 2. Produce Functional Spec
 3. Produce Technical Design
 4. Produce Program Spec
 5. Generate UT Plan (`ibm-i-ut-plan-generator`) — recommended before or after coding
-6. Generate code (`ibm-i-code-generator`)
-7. Compile precheck (`ibm-i-compile-precheck`) — recommended for fixed-format RPGLE
-8. Review code (`ibm-i-code-reviewer`)
+6. Generate test scaffold (`ibm-i-test-scaffold`) — executable SQL/CL from UT Plan (supports TDD)
+7. Generate code (`ibm-i-code-generator`)
+8. Compile precheck (`ibm-i-compile-precheck`) — recommended for fixed-format RPGLE
+9. Review code (`ibm-i-code-reviewer`)
+10. Run test scripts on IBM i — verify PASS/FAIL
 
 **File Chain** (parallel to Program Chain from step 4):
 4. Produce File Spec (`ibm-i-file-spec`)

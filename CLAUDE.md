@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Purpose
 
-This repository contains a family of 14 Claude Code Skills for IBM i (AS/400) enterprise development. The skills form a complete document-and-implementation chain — from raw requirement intake through specification, code generation, review, and unit test planning — plus a file definition skill for DDS-based file objects and a workflow orchestrator for routing work through the chain.
+This repository contains a family of 16 Claude Code Skills for IBM i (AS/400) enterprise development. The skills form a complete document-and-implementation chain — from raw requirement intake through specification, code generation, review, unit test planning, and test scaffold generation — plus a file definition skill for DDS-based file objects and a workflow orchestrator for routing work through the chain.
 
 The repository contains no application code. All content is skill definitions (SKILL.md), reference documentation, and example outputs.
 
@@ -19,9 +19,9 @@ The skills form a pipeline where each layer produces a distinct artifact type:
 ```
 Raw Input → Requirement Normalizer → Functional Spec → Technical Design ──→ Program Spec → Code
                                   ↗                           │                 │            ↑
-   Existing Source + CR → Impact Analyzer                     └──→ File Spec → DDS Source    |
-                                                                              │              |
-                                                                 UT Plan Generator (any spec or CR input)
+   Existing Source → Program Analyzer ──→ Impact Analyzer     └──→ File Spec → DDS Source    |
+                                  (+ CR)  ↗                                   │              |
+                                                                 UT Plan Generator → Test Scaffold (SQL/CL scripts)
                                           Spec Reviewer (reviews any spec layer)             |
                                           DDS Reviewer (reviews generated/written DDS source)|
                                           Code Reviewer (reviews generated/written code) ────┘
@@ -31,6 +31,7 @@ Raw Input → Requirement Normalizer → Functional Spec → Technical Design �
 | Skill | Purpose | Key Abstraction |
 |-------|---------|-----------------|
 | `ibm-i-requirement-normalizer` | Normalizes messy input into structured requirement package | Candidate items (CF-nn, CBR-nn, CE-nn) — not final spec entries |
+| `ibm-i-program-analyzer` | Analyzes existing RPGLE/CLLE source to map logic, call flow, and structure | Program comprehension — entry point for understanding unfamiliar code |
 | `ibm-i-impact-analyzer` | Analyzes existing source + CR to produce impact analysis | Source-level structural analysis — entry point for enhancement work |
 | `ibm-i-functional-spec` | Business-functional document: current/future behavior, acceptance criteria | Business-visible behavior — no technical structure |
 | `ibm-i-technical-design` | Design document: module allocation, processing stages, impact analysis | Design-level — no implementation steps |
@@ -39,6 +40,7 @@ Raw Input → Requirement Normalizer → Functional Spec → Technical Design �
 | `ibm-i-code-generator` | Generates RPGLE/CLLE source from Program Spec | Spec-driven code — Skeleton or Full Implementation modes |
 | `ibm-i-dds-generator` | Generates DDS source from File Spec JSON | Spec-driven DDS — PF, LF, PRTF, DSPF (V2.2) |
 | `ibm-i-ut-plan-generator` | Generates Unit Test Plans from specs, CRs, or raw input | Developer-level UT cases — does not execute tests |
+| `ibm-i-test-scaffold` | Generates executable SQL/CL test scripts from UT Plans | Test lifecycle automation — setup, data, execute, verify (PASS/FAIL), cleanup |
 | `ibm-i-compile-precheck` | Pre-compile review of RPGLE/CLLE for compile-safety issues | Quality gate — after code generation, before compile |
 | `ibm-i-spec-reviewer` | Reviews any spec document for quality, layer boundary, completeness | Quality gate — does not generate or rewrite |
 | `ibm-i-dds-reviewer` | Reviews DDS source against File Spec for correctness, syntax, completeness | Quality gate — does not generate or rewrite |
@@ -84,6 +86,8 @@ Business rules use the same BR-xx numbering across the entire chain. The express
 │   ├── SKILL.md                    # V2.1.2
 │   ├── references/                 # section-guide, tier-guide, json-schema, interop-model, validation-rules
 │   └── examples/                   # sample-pf-spec, sample-lf-spec, sample-dspf-spec, sample-prtf-spec, sample-pf-enhancement-spec
+├── ibm-i-program-analyzer/
+│   └── SKILL.md                    # V1.0 — source logic comprehension and call flow mapping
 ├── ibm-i-impact-analyzer/
 │   └── SKILL.md                    # V1.2 — pre-spec change impact analysis
 ├── ibm-i-dds-generator/
@@ -97,6 +101,10 @@ Business rules use the same BR-xx numbering across the entire chain. The express
 │   └── tests/                      # runner.sh + 8 test cases (tc-cg-01 to tc-cg-08, 3 layers)
 ├── ibm-i-ut-plan-generator/
 │   └── SKILL.md                    # V1.2 — unit test plans from specs, CRs, or raw input
+├── ibm-i-test-scaffold/
+│   ├── SKILL.md                    # V1.1 — executable SQL/CL test scripts from UT Plans
+│   ├── examples/                   # sample-batch-rpgle, sample-interactive-rpgle, sample-cl-wrapper, sample-service-program
+│   └── tests/                      # runner.sh + 6 structural test cases
 ├── ibm-i-compile-precheck/
 │   ├── SKILL.md                    # V1.0 — pre-compile safety review
 │   └── references/                 # fixed-format-checklists (CL1-CL6)
@@ -115,7 +123,7 @@ Business rules use the same BR-xx numbering across the entire chain. The express
 
 Each skill's behavior is defined entirely in its SKILL.md. To change a skill's behavior, modify its SKILL.md.
 
-Most skills now include supporting `references/` (guides and policies) and `examples/` (sample outputs). The DDS generator and code generator also include `tests/` directories with semi-automated test runners.
+Most skills now include supporting `references/` (guides and policies) and `examples/` (sample outputs). The DDS generator, code generator, and test scaffold skill also include `tests/` directories with semi-automated test runners.
 
 ---
 
