@@ -80,6 +80,8 @@ Determine:
 - Language: RPGLE or CLLE
 - Format: free / fixed / mixed (for RPGLE)
 - Source completeness: full member or partial (change block / snippet)
+- Source validator rules (if present) — compile-relevant validator overrides from
+  `.claude/ibm-i-code-reviewer/references/source-validator-rules.md`
 - Organization coding standard (if present) — only compile-safety-relevant mandatory rules
   from `.claude/ibm-i-code-generator/references/AS400 Program Development Guideline.md`
 
@@ -257,6 +259,11 @@ full member) but do not refuse to check.
 
 ### Organization Coding Standard Precheck Rule
 
+When `.claude/ibm-i-code-reviewer/references/source-validator-rules.md` is present, use it as
+the first review-specific override source for compile-relevant mandatory rules. If it
+conflicts with `.claude/ibm-i-code-generator/references/AS400 Program Development Guideline.md`,
+the validator rules win inside this skill.
+
 When `.claude/ibm-i-code-generator/references/AS400 Program Development Guideline.md` is
 present, apply only the portions that materially affect compile safety, runtime safety, or
 transport readiness.
@@ -274,10 +281,11 @@ in `ibm-i-code-reviewer`.
 Use this precedence order:
 1. Visible source evidence
 2. Compile/runtime-safety implications
-3. Organization coding standard
-4. Neutral precheck defaults
+3. `.claude/ibm-i-code-reviewer/references/source-validator-rules.md`
+4. `.claude/ibm-i-code-generator/references/AS400 Program Development Guideline.md`
+5. Neutral precheck defaults
 
-If the organization guideline conflicts with visible source that is still compile-safe, do not
+If either standards file conflicts with visible source that is still compile-safe, do not
 escalate it to a Blocker unless compile or runtime risk is evidenced.
 
 ### Severity Discipline
@@ -301,12 +309,14 @@ Before outputting the precheck report, confirm:
 - [ ] Recommended actions are ordered by severity
 - [ ] Report is proportionate to source size and issue count
 - [ ] Partial source limitations are noted when applicable
+- [ ] When `.claude/ibm-i-code-reviewer/references/source-validator-rules.md` is present: its compile-relevant override rules are applied ahead of the general development guideline
 - [ ] When `.claude/ibm-i-code-generator/references/AS400 Program Development Guideline.md` is present: only its compile-relevant mandatory rules and forbidden patterns were applied, without drifting into cosmetic style review
 
 ---
 
 ## Reference Files
 
+- `.claude/ibm-i-code-reviewer/references/source-validator-rules.md` — Review-specific validator rules. Read first when present, but apply only compile-safety-relevant overrides in this skill.
 - `.claude/ibm-i-code-generator/references/AS400 Program Development Guideline.md` — Shared repository-local organization coding standard. Read when present, but apply only compile-safety-relevant mandatory rules and forbidden patterns in this skill.
 
 ---
