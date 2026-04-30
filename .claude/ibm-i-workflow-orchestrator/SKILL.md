@@ -4,7 +4,7 @@ description: >
   Orchestrates the IBM i (AS/400) skill chain by identifying the user's current artifact stage,
   desired outcome, and safest next step across requirement normalization, functional spec,
   technical design, program spec, file spec, code generation, DDS generation, spec review, DDS
-  review, and code review. V1.1 — workflow routing and gatekeeping for RPGLE, CLLE, and DDS
+  review, and code review. V1.2 — workflow routing, batch planning (Plan Mode), and batch execution (Execute Mode) for RPGLE, CLLE, and DDS
   delivery with two complete pipelines (program chain and file chain). Use this skill whenever a
   user asks what to do next, how to move from requirement to spec or code, which IBM i skill
   should be used, whether a stage can be skipped, or wants end-to-end orchestration for AS/400,
@@ -12,7 +12,7 @@ description: >
   sequences work; it does not replace the generation or review skills themselves.
 ---
 
-# IBM i Workflow Orchestrator (V1.1)
+# IBM i Workflow Orchestrator (V1.2)
 
 Routes IBM i (AS/400) work to the correct skill in the correct order. The output is a routing
 decision and next-step execution guidance — not a replacement spec, not a review report, and
@@ -511,3 +511,262 @@ Recommended default paths:
 6. Review DDS (`ibm-i-dds-reviewer`)
 
 Use this skill whenever the user is unsure where they are in that chain or what the next move should be.
+
+---
+
+## Operating Modes (V1.2)
+
+The orchestrator now operates in three modes. Modes are mutually exclusive within
+a single user turn; do not mix them.
+
+| Mode | Purpose | Input | Output |
+|------|---------|-------|--------|
+| **Routing Mode** (default, V1.0–V1.1) | Decide the single next skill | Any artifact, raw input, or natural-language question | Workflow Decision block (see Output Structure above) |
+| **Plan Mode** (V1.2) | Generate a `task.md` batch plan from an approved Program Spec | Program Spec (+ optional File Spec, existing source, CR) | `task.md` draft (status=draft) |
+| **Execute Mode** (V1.2) | Run an approved `task.md` end-to-end | Approved `task.md` (status=approved) | Mutated `task.md` + all listed target artifacts + final manifest |
+
+### Mode Selection Triggers
+
+| User signal | Mode |
+|-------------|------|
+| "what should I do next", "which skill", routing/guidance language | Routing Mode |
+| "generate a task.md", "plan the batch run", "I have a Program Spec, plan the rest" | Plan Mode |
+| "execute task.md", "run the batch", "kick off the plan", path to an approved task.md | Execute Mode |
+
+If the signal is ambiguous, prefer Routing Mode and ask which the user wants.
+
+---
+
+## Plan Mode
+
+### When to Enter
+
+Plan Mode triggers when the user has one or more **approved spec**
+artifacts and wants the rest of the chain batched into one execution
+plan. Four entry shapes are supported:
+
+| Entry shape | Inputs | §3 Targets emitted |
+|-------------|--------|---------------------|
+| **Program-spec entry** (default) | Program Spec (+ optional File Spec, existing source, CR) | Code-gen + reviewers + UT plan + test scaffold; DDS chain only if File Spec is also present |
+| **File-only entry** | File Spec only (no Program Spec) | DDS-gen + DDS-review only |
+| **Combined entry** | Both Program Spec and File Spec | Both chains, with parallel-safe pairs across them |
+| **TD-driven multi-spec entry** (mode: `td-driven-multi-spec-batch`) | Technical Design only (no Program Spec, no File Spec) | Two-layer §3: Layer A generates N Program Specs and M File Specs from the TD; Layer B generates code, DDS, UT, tests downstream. Spec Approval Gate enforced between layers. |
+
+**File-only boundary case.** A file-only change has just two steps
+(DDS gen + DDS review) and can usually be handled by Routing Mode
+instead. Plan Mode is still appropriate for file-only work when (a)
+the CR touches several related files, (b) review iterations are
+expected, or (c) audit traceability of the gate decision is required.
+For a one-off single-file add-column change, prefer Routing Mode.
+
+**TD-driven multi-spec entry: derivation rules.** When the input is a
+Technical Design only, Plan Mode derives Layer A targets by
+**cross-referencing** two TD sections — Module Allocation Table
+(MAT) and Objects Affected (OA). OA is the source of truth for
+Impact (New/Modified/Existing); MAT is the source of truth for
+Object Type (RPGLE PGM / CLLE PGM / FILE).
+
+Cross-reference rule:
+
+| OA Impact | MAT Status (informational) | Action |
+|-----------|-----------------------------|--------|
+| `New` | typically `New` | Layer A target — program-spec or file-spec depending on Type |
+| `Modified` | may be `Existing` (older TDs) or `(MODIFIED)` (newer TDs) | Layer A target — same as New |
+| `Existing -- accessed` (no structural change) | typically `Existing` | **Skipped** — no spec needed |
+| Object listed in MAT but missing from OA | any | **Skipped** — OA absence means no impact |
+| Object listed in OA but missing from MAT | n/a | Layer A target on OA Impact alone; flag as MAT inconsistency in §7 |
+
+Type → target-skill mapping:
+
+| OA Type | Layer A target skill |
+|---------|----------------------|
+| `PGM (RPGLE)` or `PGM (CLLE)` | `ibm-i-program-spec` (TD-aware mode) |
+| `FILE` | `ibm-i-file-spec` (TD-aware mode, V2.2+) |
+
+L2 Standard and L3 Full TDs always have these tables (per
+technical-design tier-guide). For L1 Lite TDs where the tables are
+absent, **TD-driven mode is not appropriate** — fall back to asking the
+user for the single Program Spec or File Spec they want generated, and
+use Routing Mode for that single artifact.
+
+**Layer A skill invocation contract.** When Plan Mode emits a Layer A
+program-spec target, the corresponding Execute Mode call to
+`ibm-i-program-spec` must use **TD-aware mode** (see
+`ibm-i-program-spec` Step 0). The agent passes:
+
+- `td_path` = §2 `technical_design` value
+- `module_name` = the verbatim Object string from the TD §Module
+  Allocation row, including any leading `TBD (...)` form
+- `output_path` = the §3 A-target Output Path column
+- `existing_source` = §2 `existing_source` if the row is Modified
+
+Layer A **file-spec targets** call `ibm-i-file-spec` (V2.2+) in
+TD-aware mode (see `ibm-i-file-spec` Step 0). The agent passes:
+
+- `td_path` = §2 `technical_design` value
+- `file_object_name` = the verbatim Object string from the TD
+  §Objects Affected row (Type = FILE), including any leading
+  `TBD (...)` form
+- `output_path` = the §3 A-target Output Path column
+- `existing_source` = §2 `existing_source` for the file (DDS source
+  member) if Impact = Modified
+
+Both program-spec and file-spec Layer A targets are now supported.
+
+**Spec Approval Gate (TD-driven mode only).** (gate ID: `G_SpecApproval` in §5) Layer A and Layer B in §3
+are separated by a structural HALT gate. Execute Mode must:
+
+1. Run all Layer A targets to completion.
+2. Set §1 status = `awaiting-spec-approval`.
+3. Stop. Do not start any Layer B target.
+4. **Merge derived TBDs into §7.** Read every spec produced by Layer A,
+   extract each TBD / Open Question entry, and append them to §7 with
+   `origin:` set to the source spec path and section. Do this *before*
+   handing the task.md to the human — the human should see one
+   consolidated §7 covering both the original TD-level TBDs and the
+   newly-derived spec-level TBDs.
+5. Wait for the human to review every generated spec, optionally call
+   `ibm-i-spec-reviewer` on each, and write a non-empty
+   `specs_approved_by:` value into §1.
+6. The human re-sets §1 status to `running`. Execute Mode resumes with
+   Layer B.
+
+This gate is non-negotiable. The reviewer-Critical halt rule
+(STOP_AND_REPORT) is a separate, dynamic mechanism that may also fire
+during Layer B.
+
+The orchestrator must verify before entering Plan Mode:
+
+| Check | Required |
+|-------|----------|
+| At least one of Program Spec or File Spec is provided | Yes |
+| No unresolved Critical TBDs in the provided spec(s), or user explicitly accepts skeleton mode | Yes |
+| Existing source provided when this is enhancement work on existing code | Conditional |
+| For file-only entry: no Program Spec is implied or required | Yes |
+
+If a required check fails, do not generate task.md. Ask for the
+missing input.
+
+### What Plan Mode Produces
+
+A draft `task.md` following `references/task-md-template.md`. The orchestrator
+must:
+
+1. Fill in §1 Metadata, setting `status: draft` and `approved_by: (pending)`.
+2. Fill in §2 Inputs from the user's supplied paths.
+3. Generate §3 Targets by inspecting the Program Spec (and File Spec if any):
+   - Always include T1 (code-gen) and T3 (code-review).
+   - Include T2 (compile-precheck) if the spec implies fixed-format RPGLE.
+   - Include T4 (DDS-gen) and T5 (DDS-review) only if a File Spec is in §2.
+   - Always include T6 (UT plan) and T7 (test scaffold) unless the user opts out.
+4. Use default §4 Execution Policy and §5 Gate Definitions from the template.
+5. Fill in §7 Open Questions by carrying every TBD from the input
+   spec(s) — Program Spec, File Spec, and/or Technical Design — into
+   the list. Each entry gets `resolution: pending` and a `blocking:`
+   value chosen by these rules:
+    - `blocking: yes` for any §7 entry that backs a `<...>`
+      placeholder elsewhere in the task.md (Placeholder Rule
+      requires this — do not weaken it).
+    - `blocking: pending-human-judgment` for every other derived
+      TBD. Plan Mode does not guess severity; the human classifies
+      each as `yes` or `no` during approval review before
+      `draft` → `approved` is allowed.
+6. Leave §6 Execution Log in the initial `[ ] pending` state for every target.
+7. Leave §8 Manifest empty.
+
+### Plan Mode Output
+
+The orchestrator returns the generated task.md content to the user with a
+short header explaining:
+- which targets were included and why
+- which TBDs are now blocking §7 resolution
+- next step: human review → set §1 status to `approved` → invoke Execute Mode
+
+Plan Mode does not invoke any other skill. It generates the plan only.
+
+### Gate Coverage in §5
+
+Plan Mode emits §5 gates **only** for the following review targets:
+
+| Target | Gate | Rationale |
+|--------|------|-----------|
+| Compile precheck (when present) | block_if severity == CRITICAL | Compile failures are unrecoverable downstream |
+| Code review | block_if severity == CRITICAL OR br_coverage_gap == true | Code that misses business rules cannot be merged |
+| DDS review (when present) | block_if severity == CRITICAL | DDS errors break file creation |
+
+**UT plan and test scaffold targets are not gated.** Their findings are
+surfaced through §6 Execution Log only. Rationale: UT artifacts are
+developer-facing intermediate products; quality issues are caught in a
+single human review pass after the batch run completes, not by halting
+execution mid-chain. If a UT plan or test scaffold target fails outright
+(skill error, not quality issue), §4 `on_skill_failure: STOP_AND_REPORT`
+still applies.
+
+### Anti-Pattern: Plan Mode Must Not
+
+- Must not infer a Program Spec from raw input — Plan Mode requires a real
+  Program Spec on disk. If only raw input is available, fall back to Routing
+  Mode and route to `ibm-i-requirement-normalizer`.
+- Must not add targets not listed in the template (no inventing new skill calls).
+- Must not auto-approve. status must be `draft` until a human edits it.
+
+---
+
+## Execute Mode
+
+### When to Enter
+
+Execute Mode triggers when the user points the orchestrator at an existing
+`task.md` whose `§1 status` is `approved`. The orchestrator reads it, validates
+preconditions, and runs the batch end-to-end.
+
+### Execution Rules
+
+Execute Mode follows `references/task-md-execution-protocol.md` exactly. The
+key rules at a glance:
+
+1. **Refuse to run on draft.** Status must be `approved` and `approved_by`
+   must be non-empty. Open Questions must all be resolved or explicitly deferred.
+2. **Topological order.** Build the dependency graph from §3 Depends On. Honor
+   §4 `parallel_safe` pairs. Never parallelize a target with its own gate.
+3. **Real-time logging.** Append to §6 Execution Log immediately before and
+   after each skill invocation. Do not batch updates.
+4. **Gate evaluation.** After each target completes, evaluate every §5 gate
+   that references it. A single CRITICAL finding fires the gate.
+5. **Halt on Critical.** When a gate fires, set status = `blocked`, halt
+   execution, and produce a block report. Do not auto-retry.
+6. **Resume safely.** Re-running on a partially-completed task.md must skip
+   targets already marked `[x] done`.
+7. **Final manifest.** On status = `done`, fill in §8 with output paths and
+   first-12 SHA-256 hex per target.
+
+### What Execute Mode Must Not Do
+
+- Must not modify §2, §3, §4, §5, or §7 — these are the human-approved contract.
+- Must not generate any artifact not listed in §3.
+- Must not invoke `ibm-i-program-spec`, `ibm-i-functional-spec`,
+  `ibm-i-technical-design`, or `ibm-i-requirement-normalizer` — Execute Mode
+  starts at or after Program Spec by design.
+- Must not silently skip a gate. Every gate decision must be logged.
+
+See `references/task-md-execution-protocol.md` for the complete protocol,
+including TBD handling, parallel execution rules, idempotency, and the §6 log
+marker reference.
+
+---
+
+## Plan/Execute Mode Rule
+
+This rule joins the Core Rules above.
+
+> The orchestrator may operate in Routing, Plan, or Execute mode within a
+> conversation, but never in more than one mode per turn. Plan Mode produces a
+> `task.md` and stops. Execute Mode requires `status: approved` and follows
+> `task-md-execution-protocol.md` without deviation. Mode boundaries protect the
+> human-approved contract: Execute Mode must never silently re-plan, and Plan
+> Mode must never silently execute.
+
+The Router-Only Rule still applies inside Plan and Execute modes — the
+orchestrator routes work to the existing generation and review skills, it does
+not replace them. Plan Mode chooses **which** skills to call; Execute Mode
+chooses **when** to call them.
