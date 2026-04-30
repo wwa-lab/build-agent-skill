@@ -2,7 +2,7 @@
 name: ibm-i-program-spec
 description: >
   Generates structured IBM i (AS/400) Program Specifications for RPGLE and CLLE programs from
-  business requirements. V2.5 — tiered SDD spec system with Lite/Standard/Full levels,
+  business requirements. V2.6 — tiered SDD spec system with optional TD-aware input mode for orchestrator-driven module-scoped generation with Lite/Standard/Full levels,
   Business Rules (BR-xx), Traceability Matrix, Data Contract, Interface Contract, and
   mandatory error handling. Automatically selects the right spec level based on change
   complexity. Use this skill whenever a user provides business requirements, change requests,
@@ -14,12 +14,12 @@ description: >
   use this skill. This is a specification-generation skill, not a code-generation skill.
 ---
 
-# IBM i Program Spec Generator (V2.5)
+# IBM i Program Spec Generator (V2.6)
 
 Converts business requirements into standardized Program Specifications for RPGLE or CLLE
 development on IBM i (AS/400). The output is a structured spec document — never source code.
 
-V2.5 introduces **Spec Tiering** — three levels of spec depth that match change complexity:
+V2.6 retains Spec Tiering and adds TD-aware mode (see Step 0). V2.5 introduced **Spec Tiering** — three levels of spec depth that match change complexity:
 
 | Level | Name | When to Use | Typical Sections |
 |-------|------|-------------|-----------------|
@@ -40,6 +40,9 @@ Trigger on any of these signals:
 - User asks to "spec out", "document", or "design" an IBM i program
 - User wants a structured handoff document for an RPG or CL developer
 - User pastes a change request or enhancement description targeting IBM i
+- **Orchestrator invokes this skill in TD-aware mode** with `td_path` and
+  `module_name` (typical caller: `ibm-i-workflow-orchestrator` Plan Mode
+  Layer A targets). See Step 0 for the input contract.
 
 ---
 
@@ -54,9 +57,86 @@ a developer building the program.
 
 ## Core Process
 
+### Step 0 — Input Mode Detection
+
+Before Step 1, determine which input mode this invocation uses:
+
+**Conversational mode** (default, V2.5 behavior):
+- Triggered by a user message containing a business requirement,
+  change request, or pasted enhancement description.
+- Inputs gathered conversationally in Step 1.
+- No new behavior — proceed to Step 1 unchanged.
+
+**TD-aware mode** (V2.6, orchestrator-driven):
+- Triggered when the caller passes a Technical Design path **and** a
+  module name (typically from `ibm-i-workflow-orchestrator` Layer A
+  targets in a `td-driven-multi-spec-batch` task.md).
+- Required inputs:
+    - `td_path`: file path to an approved Technical Design document
+    - `module_name`: exact Object name from the TD §Module Allocation
+      Table. Must match a single row, character-for-character
+      (allowing for the leading `TBD (...)` form when the TD has
+      not yet finalized program names — see TBD handling below).
+- Optional inputs:
+    - `output_path`: target file path for the generated spec. If
+      omitted, the skill returns the spec body and the caller saves it.
+    - `existing_source`: required when the target module is Modified.
+
+**TD-aware input extraction.** When TD-aware mode is active, the skill
+performs Step 1 by reading the TD instead of asking the user. Mapping:
+
+| Step 1 input | Source in TD |
+|--------------|--------------|
+| Business Requirement | TD §Design Intent / §High-Level Processing Flow stages where the target module is the Active module |
+| Program Type | TD §Module Allocation Table → Type column for the target row (e.g., `RPGLE PGM` → RPGLE) |
+| Change Type | TD §Objects Affected → Impact column. `New` → New Program; `Modified` → Change to Existing |
+| Reference spec | not applicable in TD-aware mode |
+
+Then determine the **Spec Level** using this TD-aware mapping (overrides
+the conversational decision table in Step 1):
+
+| TD signal | Level |
+|-----------|-------|
+| Objects Affected = `New` | **L3 (Full)** |
+| Objects Affected = `Modified` AND module touches new file access / new external call / new data queue | **L3 (Full)** |
+| Objects Affected = `Modified` AND module adds new BR or modifies logic flow | **L2 (Standard)** |
+| Objects Affected = `Modified` AND module changes a single field, flag, constant, or threshold | **L1 (Lite)** |
+| Cannot determine from TD | **Default to L2**, note in Open Questions |
+
+**Module-scoped extraction rule.** When generating the spec body in
+Steps 2-6, include only content where the target module is the Active
+module / Allocated To / Accessed By. Other modules in the TD are
+context only — do not pull their BRs, Main Logic, or file usage into
+this spec.
+
+**TBD handling for module names.** If `module_name` matches a TD row
+whose Object is still `TBD (...)` (not yet finalized), pass the TBD
+string through verbatim into the generated Spec Header `Program Name`
+field as `TBD`. Do not invent a name. The caller (orchestrator) is
+responsible for resolving the TBD via task.md §7 before code
+generation can run.
+
+**TD-aware Spec Header additions.** Generated specs from TD-aware
+mode must add one extra line in §Spec Header:
+
+    - **Source TD:** <td_path> §Module Allocation row "<module_name>"
+
+This makes the trace from spec back to TD explicit and machine-readable.
+
+**No hallucination still applies.** TD-aware mode does not give the
+skill license to invent file names, field names, or BRs that the TD
+does not state. Anything not in the TD is `TBD (To Be Confirmed)` and
+appears in §Open Questions / TBD.
+
+---
+
 ### Step 1 — Gather Inputs and Determine Spec Level
 
-Identify from the user's message:
+If TD-aware mode is active (see Step 0), inputs are pre-extracted from
+the TD using the mapping in Step 0; skip the conversational gathering
+in this step but still verify each item is present (raise TBD if not).
+
+In conversational mode (default), identify from the user's message:
 1. **Business Requirement** (mandatory) — what the program must accomplish
 2. **Program Type** — RPGLE or CLLE (ask if not stated)
 3. **Change Type** — is this a new program or a change to an existing program?

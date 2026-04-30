@@ -1,0 +1,305 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="2080" viewBox="0 0 1440 2080" role="img" aria-labelledby="title desc">
+  <title id="title">workflow-orchestrator.skill 介绍图</title>
+  <desc id="desc">IBM i Workflow Orchestrator skill 的定位、价值、结构、使用场景与路由流程介绍。</desc>
+  <defs>
+    <style>
+      .bg { fill: #fbfbff; }
+      .ink { fill: #121328; }
+      .muted { fill: #585a72; }
+      .blue { fill: #4b5fe8; }
+      .purple { fill: #6d4be8; }
+      .cyan { fill: #eaf4ff; stroke: #9dc4ff; }
+      .lav { fill: #f1edff; stroke: #c4b7ff; }
+      .green { fill: #eff9ee; stroke: #b5dcae; }
+      .yellow { fill: #fff7dc; stroke: #ead078; }
+      .pink { fill: #fff0f5; stroke: #f4aac5; }
+      .card { fill: #ffffff; stroke: #e3e4f0; stroke-width: 2; }
+      .soft { fill: #f7f7ff; stroke: #e6e5fb; }
+      .line { stroke: #4b5fe8; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+      .thin { stroke: #b8bad0; stroke-width: 2; fill: none; stroke-linecap: round; }
+      .title { font: 800 68px "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #0d0e22; }
+      .subtitle { font: 700 30px "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #4b34ca; }
+      .h2 { font: 800 30px "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #17183a; }
+      .h3 { font: 700 21px "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #17183a; }
+      .body { font: 400 20px "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #30324a; }
+      .small { font: 400 16px "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #585a72; }
+      .mini { font: 600 15px "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #30324a; }
+      .tag { font: 700 17px "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #4b34ca; }
+      .mono { font: 600 18px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #2e3150; }
+      .white { fill: #ffffff; }
+    </style>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#1d2250" flood-opacity="0.08"/>
+    </filter>
+    <marker id="arrow" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L12,7 L2,12 Z" fill="#4b5fe8"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1440" height="2080"/>
+  <circle cx="1210" cy="150" r="190" fill="#f0efff"/>
+  <circle cx="1295" cy="245" r="88" fill="#e8f4ff"/>
+  <path d="M0 460 C260 430 410 485 650 454 S1090 426 1440 474 L1440 0 L0 0 Z" fill="#ffffff"/>
+
+  <!-- Header -->
+  <g transform="translate(82 56)">
+    <rect x="0" y="0" width="54" height="54" rx="12" fill="#4b5fe8"/>
+    <path d="M13 38 L13 16 L24 16 L24 27 L41 27 L41 38 Z" fill="#fff"/>
+    <path d="M27 16 L41 16 L41 23 L27 23 Z" fill="#bfe7ff"/>
+    <text x="70" y="36" class="h3" fill="#2434b7">IBM i Skill Family</text>
+  </g>
+
+  <text x="80" y="195" class="title">workflow-orchestrator.skill</text>
+  <text x="84" y="254" class="subtitle">IBM i 交付链的路由与风控中枢</text>
+  <text x="84" y="309" class="body">它负责识别当前材料所处阶段、判断目标产物、选择最安全的下一个 Skill，</text>
+  <text x="84" y="342" class="body">并在生成、审查、测试之间保持节奏：推进交付，但不允许危险跳层。</text>
+
+  <g transform="translate(1010 88)">
+    <text x="0" y="0" class="blue" style="font: 800 54px serif;">“</text>
+    <text x="42" y="32" class="h3" fill="#22235a">不是替代所有 Skill，</text>
+    <text x="42" y="68" class="h3" fill="#22235a">而是判断现在该让谁接棒。</text>
+    <text x="150" y="112" class="small">— Orchestrator</text>
+    <circle cx="215" cy="250" r="96" fill="#594fe2" opacity="0.95"/>
+    <circle cx="215" cy="250" r="58" fill="#776dff" opacity="0.9"/>
+    <circle cx="215" cy="250" r="22" fill="#ffffff"/>
+    <path d="M143 218 C106 194 92 154 116 124 C147 86 205 111 211 166" class="line" opacity="0.5"/>
+    <path d="M284 225 C334 201 355 160 335 122 C310 74 242 104 234 168" class="line" opacity="0.5"/>
+    <g stroke="#fff" stroke-width="3" fill="#fff">
+      <circle cx="154" cy="214" r="7"/><circle cx="184" cy="169" r="7"/><circle cx="245" cy="174" r="7"/>
+      <circle cx="275" cy="226" r="7"/><circle cx="252" cy="286" r="7"/><circle cx="180" cy="291" r="7"/>
+      <path d="M154 214 L184 169 L245 174 L275 226 L252 286 L180 291 L154 214" fill="none"/>
+      <path d="M184 169 L215 250 L252 286 M245 174 L215 250 L180 291" fill="none"/>
+    </g>
+  </g>
+
+  <!-- Tags -->
+  <g transform="translate(82 392)">
+    <rect class="soft" x="0" y="0" width="150" height="44" rx="8"/>
+    <text class="tag" x="24" y="29">阶段识别</text>
+    <rect class="soft" x="174" y="0" width="150" height="44" rx="8"/>
+    <text class="tag" x="198" y="29">路由决策</text>
+    <rect class="soft" x="348" y="0" width="150" height="44" rx="8"/>
+    <text class="tag" x="372" y="29">安全跳步</text>
+    <rect class="soft" x="522" y="0" width="150" height="44" rx="8"/>
+    <text class="tag" x="546" y="29">质量门禁</text>
+    <rect class="soft" x="696" y="0" width="150" height="44" rx="8"/>
+    <text class="tag" x="720" y="29">交付推进</text>
+  </g>
+
+  <!-- What is it -->
+  <g filter="url(#shadow)">
+    <rect class="card" x="70" y="500" width="840" height="338" rx="14"/>
+  </g>
+  <text x="100" y="555" class="h2">什么是 workflow-orchestrator.skill？</text>
+  <text x="100" y="602" class="body">一个面向 IBM i / AS/400 交付的“工作流路由器”：</text>
+  <text x="100" y="635" class="body">根据输入材料成熟度，决定应走需求、分析、设计、规格、生成、审查或测试哪一步。</text>
+  <g transform="translate(112 660)">
+    <circle class="lav" cx="54" cy="54" r="50"/>
+    <path class="line" d="M38 66 L38 32 L70 32 L70 66 Z M45 43 L63 43 M45 53 L63 53"/>
+    <text x="10" y="125" class="h3">输入材料</text>
+    <text x="-18" y="151" class="small">需求 / 源码 / CR</text>
+    <path class="line" d="M120 54 L168 54" marker-end="url(#arrow)"/>
+
+    <circle class="cyan" cx="226" cy="54" r="50"/>
+    <path class="line" d="M207 37 L245 37 M207 54 L245 54 M207 71 L245 71"/>
+    <text x="185" y="125" class="h3">阶段识别</text>
+    <text x="174" y="151" class="small">判断当前层级</text>
+    <path class="line" d="M292 54 L340 54" marker-end="url(#arrow)"/>
+
+    <circle class="yellow" cx="398" cy="54" r="50"/>
+    <path class="line" d="M376 54 L398 32 L420 54 L398 76 Z"/>
+    <text x="357" y="125" class="h3">路由决策</text>
+    <text x="346" y="151" class="small">选最安全 Skill</text>
+    <path class="line" d="M464 54 L512 54" marker-end="url(#arrow)"/>
+
+    <circle class="pink" cx="570" cy="54" r="50"/>
+    <path class="line" d="M548 60 L565 77 L596 37 M570 25 L604 39 L596 77 L570 93 L544 77 L536 39 Z"/>
+    <text x="529" y="125" class="h3">门禁提醒</text>
+    <text x="526" y="151" class="small">Review / UT</text>
+    <path class="line" d="M636 54 L684 54" marker-end="url(#arrow)"/>
+
+    <circle class="green" cx="742" cy="54" r="50"/>
+    <path class="line" d="M720 72 L742 34 L764 72 M731 61 L753 61"/>
+    <text x="701" y="125" class="h3">下一步执行</text>
+    <text x="704" y="151" class="small">下游工件</text>
+  </g>
+
+  <!-- Core values -->
+  <g filter="url(#shadow)">
+    <rect class="card" x="940" y="500" width="430" height="338" rx="14"/>
+  </g>
+  <text x="970" y="555" class="h2">核心价值</text>
+  <g transform="translate(970 590)">
+    <circle class="lav" cx="25" cy="25" r="24"/><text x="17" y="33" class="h3">1</text>
+    <text x="65" y="22" class="h3">避免错误跳层</text>
+    <text x="65" y="49" class="small">Raw Input 不直接生成代码或 DDS。</text>
+    <circle class="cyan" cx="25" cy="86" r="24"/><text x="17" y="94" class="h3">2</text>
+    <text x="65" y="83" class="h3">降低 IBM i 交付风险</text>
+    <text x="65" y="110" class="small">固定格式 RPGLE 先检查编译关键项。</text>
+    <circle class="green" cx="25" cy="147" r="24"/><text x="17" y="155" class="h3">3</text>
+    <text x="65" y="144" class="h3">串联双链路</text>
+    <text x="65" y="171" class="small">Program Chain 与 File Chain 并行协作。</text>
+    <circle class="yellow" cx="25" cy="208" r="24"/><text x="17" y="216" class="h3">4</text>
+    <text x="65" y="205" class="h3">主动提示 Review 与 UT</text>
+    <text x="65" y="232" class="small">让质量门禁成为默认动作。</text>
+  </g>
+
+  <!-- Structure -->
+  <g filter="url(#shadow)">
+    <rect class="card" x="70" y="858" width="840" height="396" rx="14"/>
+  </g>
+  <text x="100" y="913" class="h2">workflow.skill 的结构</text>
+  <g transform="translate(168 960) scale(0.72)">
+    <polygon points="165,0 265,84 65,84" fill="#cbc3ff" stroke="#9788ff" stroke-width="2"/>
+    <polygon points="65,104 265,104 330,180 0,180" fill="#786cff" stroke="#594fe2" stroke-width="2"/>
+    <polygon points="0,202 330,202 392,284 -62,284" fill="#4f43d8" stroke="#3b31b1" stroke-width="2"/>
+    <polygon points="-62,306 392,306 450,386 -120,386" fill="#2f279b" stroke="#241e7c" stroke-width="2"/>
+    <text x="130" y="55" class="white" style="font:700 28px sans-serif;">Meta</text>
+    <text x="114" y="154" class="white" style="font:700 28px sans-serif;">Method</text>
+    <text x="102" y="252" class="white" style="font:700 28px sans-serif;">Strategy</text>
+    <text x="88" y="355" class="white" style="font:700 28px sans-serif;">Knowledge</text>
+  </g>
+  <g transform="translate(520 950)">
+    <rect class="soft" x="0" y="0" width="340" height="56" rx="10"/>
+    <text x="22" y="25" class="h3">元认知层 Meta</text>
+    <text x="22" y="48" class="small">识别当前层级，判断用户真正目标。</text>
+    <rect class="soft" x="0" y="70" width="340" height="56" rx="10"/>
+    <text x="22" y="95" class="h3">方法层 Method</text>
+    <text x="22" y="118" class="small">阶段分类、目标识别、路由表、跳步规则。</text>
+    <rect class="soft" x="0" y="140" width="340" height="56" rx="10"/>
+    <text x="22" y="165" class="h3">策略层 Strategy</text>
+    <text x="22" y="188" class="small">安全充分阶段、Review Gate、UT Plan。</text>
+    <rect class="soft" x="0" y="210" width="340" height="56" rx="10"/>
+    <text x="22" y="235" class="h3">知识层 Knowledge</text>
+    <text x="22" y="258" class="small">16 个 Skill、双链路、Fast-Path。</text>
+  </g>
+
+  <!-- Routing example -->
+  <g filter="url(#shadow)">
+    <rect class="card" x="940" y="858" width="430" height="396" rx="14"/>
+  </g>
+  <text x="970" y="913" class="h2">路由示例</text>
+  <g transform="translate(970 950)">
+    <rect class="lav" x="0" y="0" width="372" height="42" rx="8"/>
+    <text x="18" y="28" class="h3">用户只有杂乱需求</text>
+    <text x="18" y="60" class="mono">→ requirement-normalizer</text>
+    <rect class="cyan" x="0" y="75" width="372" height="42" rx="8"/>
+    <text x="18" y="103" class="h3">现有源码 + CR</text>
+    <text x="18" y="135" class="mono">→ impact-analyzer</text>
+    <rect class="yellow" x="0" y="150" width="372" height="42" rx="8"/>
+    <text x="18" y="178" class="h3">Program Spec 已完成</text>
+    <text x="18" y="210" class="mono">→ code-generator / UT plan</text>
+    <rect class="green" x="0" y="225" width="372" height="42" rx="8"/>
+    <text x="18" y="253" class="h3">File Spec JSON 已完成</text>
+    <text x="18" y="285" class="mono">→ dds-generator</text>
+  </g>
+
+  <!-- Scenarios -->
+  <g filter="url(#shadow)">
+    <rect class="card" x="70" y="1290" width="650" height="300" rx="14"/>
+  </g>
+  <text x="100" y="1345" class="h2">典型应用场景</text>
+  <g transform="translate(105 1390)">
+    <circle class="lav" cx="48" cy="42" r="42"/><path class="line" d="M30 42 H66 M48 24 V60"/>
+    <text x="0" y="105" class="h3">不知下一步</text>
+    <text x="18" y="132" class="small">选路</text>
+
+    <circle class="cyan" cx="172" cy="42" r="42"/><path class="line" d="M150 62 L172 22 L194 62 Z"/>
+    <text x="124" y="105" class="h3">端到端交付</text>
+    <text x="132" y="132" class="small">需求到测试</text>
+
+    <circle class="green" cx="296" cy="42" r="42"/><path class="line" d="M274 55 L296 29 L318 55 M282 55 H310"/>
+    <text x="248" y="105" class="h3">日常增强</text>
+    <text x="250" y="132" class="small">快速路由</text>
+
+    <circle class="yellow" cx="420" cy="42" r="42"/><path class="line" d="M398 62 H442 V24 H398 Z M408 36 H432 M408 49 H432"/>
+    <text x="372" y="105" class="h3">DDS 文件变更</text>
+    <text x="382" y="132" class="small">DDS 对象</text>
+
+    <circle class="pink" cx="544" cy="42" r="42"/><path class="line" d="M522 42 L538 58 L566 28"/>
+    <text x="496" y="105" class="h3">生成后把关</text>
+    <text x="504" y="132" class="small">质量门禁</text>
+  </g>
+
+  <!-- Difference table -->
+  <g filter="url(#shadow)">
+    <rect class="card" x="750" y="1290" width="620" height="300" rx="14"/>
+  </g>
+  <text x="780" y="1345" class="h2">与生成类 Skill 的区别</text>
+  <g transform="translate(780 1380)">
+    <rect class="soft" x="0" y="0" width="560" height="52" rx="8"/>
+    <text x="20" y="33" class="h3">对比维度</text>
+    <text x="190" y="33" class="h3">Workflow</text>
+    <text x="380" y="33" class="h3">下游 Skill</text>
+    <line class="thin" x1="170" y1="0" x2="170" y2="216"/>
+    <line class="thin" x1="360" y1="0" x2="360" y2="216"/>
+    <text x="20" y="83" class="mini">职责</text>
+    <text x="190" y="83" class="small">选路、排序、控风险</text>
+    <text x="380" y="83" class="small">生成/审查具体产物</text>
+    <line class="thin" x1="0" y1="104" x2="560" y2="104"/>
+    <text x="20" y="135" class="mini">输出</text>
+    <text x="190" y="135" class="small">Routing Decision</text>
+    <text x="380" y="135" class="small">Spec / Code / DDS / Tests</text>
+    <line class="thin" x1="0" y1="156" x2="560" y2="156"/>
+    <text x="20" y="187" class="mini">原则</text>
+    <text x="190" y="187" class="small">最早且足够安全</text>
+    <text x="380" y="187" class="small">按模板深度产出</text>
+  </g>
+
+  <!-- How to use -->
+  <g filter="url(#shadow)">
+    <rect class="card" x="70" y="1630" width="650" height="300" rx="14"/>
+  </g>
+  <text x="100" y="1685" class="h2">如何使用这个 Skill？</text>
+  <g transform="translate(105 1735)">
+    <circle class="lav" cx="40" cy="40" r="38"/><text x="30" y="51" class="h2">1</text>
+    <text x="0" y="98" class="h3">给材料</text>
+    <text x="18" y="124" class="small">材料</text>
+    <path class="line" d="M88 40 L122 40" marker-end="url(#arrow)"/>
+    <circle class="cyan" cx="162" cy="40" r="38"/><text x="152" y="51" class="h2">2</text>
+    <text x="122" y="98" class="h3">说明目标</text>
+    <text x="140" y="124" class="small">目标</text>
+    <path class="line" d="M210 40 L244 40" marker-end="url(#arrow)"/>
+    <circle class="green" cx="284" cy="40" r="38"/><text x="274" y="51" class="h2">3</text>
+    <text x="244" y="98" class="h3">得到路由</text>
+    <text x="252" y="124" class="small">下一 Skill</text>
+    <path class="line" d="M332 40 L366 40" marker-end="url(#arrow)"/>
+    <circle class="yellow" cx="406" cy="40" r="38"/><text x="396" y="51" class="h2">4</text>
+    <text x="366" y="98" class="h3">通过门禁</text>
+    <text x="382" y="124" class="small">Review</text>
+    <path class="line" d="M454 40 L488 40" marker-end="url(#arrow)"/>
+    <circle class="pink" cx="528" cy="40" r="38"/><text x="518" y="51" class="h2">5</text>
+    <text x="488" y="98" class="h3">继续交付</text>
+    <text x="504" y="124" class="small">继续</text>
+  </g>
+
+  <!-- Ecosystem -->
+  <g filter="url(#shadow)">
+    <rect class="card" x="750" y="1630" width="620" height="300" rx="14"/>
+  </g>
+  <text x="780" y="1685" class="h2">与技能生态的关系</text>
+  <g transform="translate(780 1730)">
+    <rect class="lav" x="0" y="24" width="150" height="92" rx="12"/>
+    <text x="22" y="62" class="h3">用户输入</text>
+    <text x="22" y="91" class="small">需求 / 源码 / CR</text>
+    <path class="line" d="M164 70 L220 70" marker-end="url(#arrow)"/>
+    <circle class="blue" cx="290" cy="70" r="64"/>
+    <text x="238" y="64" class="white" style="font:800 22px sans-serif;">workflow</text>
+    <text x="245" y="92" class="white" style="font:700 17px sans-serif;">orchestrator</text>
+    <path class="line" d="M356 70 L418 70" marker-end="url(#arrow)"/>
+    <rect class="green" x="432" y="24" width="150" height="92" rx="12"/>
+    <text x="457" y="55" class="h3">下游 Skill</text>
+    <text x="450" y="84" class="small">Spec / Code / Review</text>
+    <path class="line" d="M507 130 C475 190 358 212 290 148 C220 212 108 190 75 130" marker-end="url(#arrow)"/>
+    <text x="208" y="218" class="h3" fill="#4b34ca">反馈与保存的工件继续喂给下一步</text>
+  </g>
+
+  <!-- Chain strip -->
+  <g transform="translate(70 1960)">
+    <rect class="soft" x="0" y="0" width="1300" height="82" rx="14"/>
+    <text x="28" y="34" class="h3">一句话总结</text>
+    <text x="180" y="34" class="body">workflow-orchestrator.skill 是 IBM i Skill Family 的“调度台”：</text>
+    <text x="180" y="64" class="body">让需求、规格、代码、DDS、Review、UT 在正确顺序里接力，少走弯路，也少冒险。</text>
+    <text x="1080" y="50" class="mono">V1.1</text>
+  </g>
+</svg>

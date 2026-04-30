@@ -3,7 +3,7 @@ name: ibm-i-file-spec
 description: >
   IBM i File Spec — generates structured File Specifications for Physical Files (PF),
   Logical Files (LF), Printer Files (PRTF), and Display Files (DSPF) using DDS (Data
-  Description Specifications). V2.1.2 — DDS-first, dual-layer output (human-readable
+  Description Specifications). V2.2 — DDS-first, dual-layer output, optional TD-aware input mode for orchestrator-driven file-scoped generation (human-readable
   Markdown + machine-readable JSON), cross-spec interoperability via stable IDs,
   execution-mode routing by file type (PF/LF, DSPF, PRTF), skeleton output gate for
   incomplete inputs, delta-first change specs, tiered spec levels (Lite/Standard/Full),
@@ -14,7 +14,7 @@ description: >
   skill, not a DDS source generator, not a program spec, not a database design skill.
 ---
 
-# IBM i File Spec (V2.1.2)
+# IBM i File Spec (V2.2)
 
 Converts file requirements into standardized File Specifications for DDS-based file objects
 on IBM i (AS/400). Produces **dual-layer output**: a human-readable spec document AND a
@@ -108,6 +108,10 @@ Trigger on:
 - User asks to create a logical file over an existing PF
 - User asks to design a display file screen or printer file layout
 - User provides file requirements and asks for a DDS-level specification
+- **Orchestrator invokes this skill in TD-aware mode** with `td_path`
+  and `file_object_name` (typical caller: `ibm-i-workflow-orchestrator`
+  Plan Mode Layer A targets where Objects Affected Type = FILE). See
+  Step 0 for the input contract.
 
 **Do NOT trigger** when:
 - User asks for program logic (use `ibm-i-program-spec`)
@@ -311,9 +315,88 @@ For full interoperability rules: `references/interop-model.md`.
 
 ## Core Process
 
+### Step 0 — Input Mode Detection
+
+Before Step 1, determine which input mode this invocation uses:
+
+**Conversational mode** (default, V2.1.2 behavior):
+- Triggered by a user message containing a file requirement or a
+  request to define/design/spec out a PF/LF/DSPF/PRTF.
+- Inputs gathered conversationally in Step 1.
+- No new behavior — proceed to Step 1 unchanged.
+
+**TD-aware mode** (V2.2, orchestrator-driven):
+- Triggered when the caller passes a Technical Design path **and** a
+  file object name (typically from `ibm-i-workflow-orchestrator`
+  Layer A targets in a `td-driven-multi-spec-batch` task.md where
+  Objects Affected Type = FILE).
+- Required inputs:
+    - `td_path`: file path to an approved Technical Design document
+    - `file_object_name`: exact Object name from the TD §Objects
+      Affected table (or §File Access Summary File Name column).
+      Must match a single row, character-for-character (allowing
+      for the leading `TBD (...)` form).
+- Optional inputs:
+    - `output_path`: target file path for the generated spec. If
+      omitted, the skill returns the spec body and the caller saves it.
+    - `existing_source`: required when the target file is Modified.
+
+**TD-aware input extraction.** When TD-aware mode is active, the skill
+performs Step 1 by reading the TD instead of asking the user. Mapping:
+
+| Step 1 input | Source in TD |
+|--------------|--------------|
+| File Requirement | TD §Design Intent + every reference to this file in §Data / Object Interaction Design and §File Access Summary, joined into a purpose narrative |
+| File Type | TD §Module Allocation or §File Access Summary Type column. If TD only writes `FILE` without subtype, infer from §File Access Summary Access Type (I/O/U → PF/LF) and Object Interaction Map (screen / print verbs → DSPF / PRTF). When ambiguous → mark TBD and force Skeleton Spec. |
+| Change Type | TD §Objects Affected → Impact column. `New` → New File; `Modified` → Change to Existing; `Existing -- accessed` → orchestrator should not have emitted this target — refuse and surface as error |
+| Based-On PF (LF only) | TD §File Access Summary or §Object Interaction Map: explicit `based on <PF name>` reference. If absent for an LF, mark TBD. |
+| Prior Spec | not applicable in TD-aware mode |
+| Reference file | not applicable in TD-aware mode |
+
+Then determine **Output Mode** and **Spec Level** using the existing
+tables in Step 1, with these TD-aware refinements:
+
+- Output Mode = `Skeleton Spec` whenever TD does not provide enough
+  detail to populate Field Definitions (this is the most common
+  outcome for early-stage TDs).
+- Output Mode = `Change Spec` whenever Objects Affected Impact =
+  `Modified` — even if TD has full new-state field definitions, the
+  delta-first format is still required.
+
+**File-scoped extraction rule.** When generating the spec body in
+Steps 2-7, include only content where the target file is the
+Accessed object / target of write / source of read. Other files
+referenced by the TD are out of scope for this spec.
+
+**TBD handling for file names.** If `file_object_name` matches a TD
+row whose Object is still `TBD (...)`, pass the TBD string verbatim
+into the generated Spec Header `File Name` field as `TBD`. Do not
+invent a name. The caller (orchestrator) is responsible for resolving
+the TBD via task.md §7 before DDS generation can run.
+
+**TD-aware Spec Header additions.** Generated specs from TD-aware
+mode must add one extra line in §Spec Header:
+
+    - **Source TD:** <td_path> §Objects Affected row "<file_object_name>"
+
+This makes the trace from spec back to TD explicit and machine-readable.
+
+**No hallucination still applies.** TD-aware mode does not give the
+skill license to invent field names, key compositions, or screen layouts
+that the TD does not state. Anything not in the TD is `TBD (To Be
+Confirmed)` and appears in §Open Questions. Skeleton Spec is the
+expected output when the TD only describes the file at a high level.
+
+---
+
 ### Step 1 — Gather Inputs and Classify
 
-Identify from the user's input:
+If TD-aware mode is active (see Step 0), inputs are pre-extracted
+from the TD using the mapping in Step 0; skip the conversational
+gathering in this step but still verify each item is present (raise
+TBD if not).
+
+In conversational mode (default), identify from the user's input:
 1. **File Requirement** (mandatory) — what the file must accomplish
 2. **File Type** — PF, LF, PRTF, or DSPF (infer from context if possible; if truly ambiguous, mark TBD and produce skeleton)
 3. **Change Type** — New File or Change to Existing
