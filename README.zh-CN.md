@@ -2,6 +2,8 @@
 
 [English](README.md) | [参赛提交材料](docs/open-collaboration-submission.zh-CN.md) | [完整技能参考](docs/full-reference-readme.md)
 
+![Atlas Engineering Delivery Hub 移动端视觉图](docs/assets/atlas-engineering-delivery-hub-mobile-static.png)
+
 **Atlas Engineering Delivery Hub - Build 是 Atlas Engineering Delivery Hub / Seven Mountains SDLC 中 M4 Build 阶段的 Tool。它帮助团队把已经形成的交付证据，转换成可控、可追踪、可复用的实现工作。**
 
 这个仓库不是整个 Atlas Engineering Delivery Hub 框架本身，而是其中的 M4 Build 工具包。它面向 IBM i (AS/400) 企业开发场景，把需求、设计、程序规格、文件规格等上游证据，继续推进为 RPGLE/CLLE 源码、DDS 源码、评审报告、单元测试计划和 SQL/CL 测试脚手架。

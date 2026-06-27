@@ -2,6 +2,8 @@
 
 [简体中文](README.zh-CN.md) | [Competition Submission](docs/open-collaboration-submission.md) | [Full Skill Reference](docs/full-reference-readme.md)
 
+![Atlas Engineering Delivery Hub mobile visual](docs/assets/atlas-engineering-delivery-hub-mobile-static.png)
+
 **Atlas Engineering Delivery Hub - Build is the M4 Build-stage tool within the Atlas Engineering Delivery Hub. It helps teams convert structured delivery evidence into controlled implementation work.**
 
 This repository packages a family of Claude Code skills for IBM i (AS/400) enterprise delivery. It is not the whole Atlas Engineering Delivery Hub framework. It is the M4 Build tool: the part of the lifecycle that turns approved requirements, design evidence, program specifications, and file contracts into implementation-ready artifacts, review gates, and developer test scaffolds.
