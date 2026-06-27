@@ -1,0 +1,18 @@
+flowchart LR
+    M1["M1 Planning"]
+    M2["M2 Estimation"]
+    M3["M3 Discovery<br/>Atlas Phoenix Lens / Legacy Spec Factory"]
+    M4["M4 Build<br/>Atlas Engineering Delivery Hub - Build"]
+    M5["M5 Testing"]
+    M6["M6 Deployment"]
+    M7["M7 Maintenance"]
+
+    M1 --> M2 --> M3 --> M4 --> M5 --> M6 --> M7
+
+    classDef normal fill:#f7f7f2,stroke:#6f6f64,color:#202020,stroke-width:1px;
+    classDef highlight fill:#1f7a5b,stroke:#0b3d2e,color:#ffffff,stroke-width:3px;
+    classDef upstream fill:#d9ecff,stroke:#35658f,color:#102333,stroke-width:1px;
+
+    class M1,M2,M5,M6,M7 normal;
+    class M3 upstream;
+    class M4 highlight;

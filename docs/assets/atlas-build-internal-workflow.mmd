@@ -1,0 +1,58 @@
+flowchart TB
+    Start["Structured delivery evidence<br/>requirements, CRs, source, specs, TDs"]
+    Router["ibm-i-workflow-orchestrator<br/>Routing / Plan / Execute"]
+
+    subgraph Analysis["Intake and analysis"]
+        RN["Requirement Normalizer"]
+        PA["Program Analyzer"]
+        IA["Impact Analyzer"]
+    end
+
+    subgraph Specs["Specification layer"]
+        FS["Functional Spec"]
+        TD["Technical Design"]
+        PS["Program Spec"]
+        FileSpec["File Spec<br/>Markdown + JSON"]
+        SR["Spec Reviewer"]
+    end
+
+    subgraph ProgramChain["Program Chain"]
+        CodeGen["Code Generator<br/>RPGLE / CLLE"]
+        Precheck["Compile Precheck"]
+        CodeReview["Code Reviewer"]
+        UT["UT Plan Generator"]
+        Scaffold["Test Scaffold<br/>SQL / CL"]
+    end
+
+    subgraph FileChain["File Chain"]
+        DDSGen["DDS Generator<br/>PF / LF / PRTF / DSPF"]
+        DDSReview["DDS Reviewer"]
+    end
+
+    Manifest["Build evidence package<br/>task.md manifest, generated artifacts, reviews, tests"]
+
+    Start --> Router
+    Router --> RN
+    Router --> PA
+    PA --> IA
+    RN --> FS
+    IA --> PS
+    FS --> TD
+    TD --> PS
+    TD --> FileSpec
+    PS --> SR
+    FileSpec --> SR
+    PS --> CodeGen --> Precheck --> CodeReview --> Manifest
+    PS --> UT --> Scaffold --> Manifest
+    FileSpec --> DDSGen --> DDSReview --> Manifest
+    Router --> Manifest
+
+    classDef gate fill:#fff0d1,stroke:#a86200,color:#2c1a00,stroke-width:2px;
+    classDef build fill:#e9f7ef,stroke:#1f7a5b,color:#0f2f23,stroke-width:1px;
+    classDef evidence fill:#eef2ff,stroke:#4755a0,color:#151d4c,stroke-width:1px;
+    classDef output fill:#f7f7f2,stroke:#55554a,color:#202020,stroke-width:1px;
+
+    class Router,SR,Precheck,CodeReview,DDSReview gate;
+    class CodeGen,DDSGen,UT,Scaffold build;
+    class Start,RN,PA,IA,FS,TD,PS,FileSpec evidence;
+    class Manifest output;
