@@ -1,0 +1,36 @@
+flowchart LR
+    subgraph M3["M3 Discovery / Design Evidence"]
+        Req["Normalized requirements"]
+        Evidence["Discovery notes, source analysis, impact analysis"]
+        Design["Functional Spec and Technical Design"]
+    end
+
+    subgraph M4["M4 Build Tool"]
+        Task["Approved task.md plan"]
+        Specs["Program Specs and File Specs"]
+        Build["RPGLE / CLLE and DDS artifacts"]
+        Gates["Spec, compile, code, and DDS review gates"]
+        Tests["UT Plan and SQL/CL test scaffold"]
+    end
+
+    subgraph M5["M5 Testing / Validation"]
+        Package["Build evidence package"]
+        Execute["Run tests on target IBM i environment"]
+        Feedback["Defects, questions, and change feedback"]
+    end
+
+    Req --> Task
+    Evidence --> Task
+    Design --> Task
+    Task --> Specs --> Build --> Gates --> Package
+    Specs --> Tests --> Package
+    Package --> Execute --> Feedback
+    Feedback --> Task
+
+    classDef discovery fill:#d9ecff,stroke:#35658f,color:#102333,stroke-width:1px;
+    classDef build fill:#1f7a5b,stroke:#0b3d2e,color:#ffffff,stroke-width:2px;
+    classDef testing fill:#fff0d1,stroke:#a86200,color:#2c1a00,stroke-width:1px;
+
+    class Req,Evidence,Design discovery;
+    class Task,Specs,Build,Gates,Tests build;
+    class Package,Execute,Feedback testing;
