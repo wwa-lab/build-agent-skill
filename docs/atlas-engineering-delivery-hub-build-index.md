@@ -4,7 +4,11 @@ This page is the fast navigation map for reviewers evaluating this repository as
 
 ## One-Sentence Positioning
 
-Atlas Engineering Delivery Hub - Build is the M4 Build-stage tool within the Atlas Engineering Delivery Hub. It helps IBM i teams convert structured delivery evidence into controlled implementation work.
+Atlas Build helps IBM i delivery teams turn business requirements and existing-code knowledge into implementation work with clear evidence, familiar maintenance conventions and reviewable outputs.
+
+## Start With Situation → Solution → Result
+
+Read the [maintained value narrative](atlas-engineering-delivery-hub-build-pitch.md) first. It connects the [pilot's qualitative feedback](../article-pilot-retrospective.md) to three mechanisms—scope-aware routing, reusable domain rules and checking evidence—and separates established POC results from benefits awaiting real-case measurement.
 
 ## Where It Fits
 
@@ -27,9 +31,12 @@ M1 Planning -> M2 Estimation -> M3 Discovery -> [M4 Build] -> M5 Testing -> M6 D
 | Submission draft | [docs/open-collaboration-submission.md](open-collaboration-submission.md) | Reviewer-ready competition submission text. |
 | Chinese submission | [docs/open-collaboration-submission.zh-CN.md](open-collaboration-submission.zh-CN.md) | Chinese submission companion. |
 | Pitch | [docs/atlas-engineering-delivery-hub-build-pitch.md](atlas-engineering-delivery-hub-build-pitch.md) | Short pitch, demo story, and talking points. |
+| Value evidence | [Pilot retrospective](../article-pilot-retrospective.md) | Qualitative feedback motivating workflow changes; no measured benefit baseline. |
 | Contribution guide | [CONTRIBUTING.md](../CONTRIBUTING.md) | How contributors can safely extend the tool. |
 | Architecture visuals | [docs/assets/](assets/) | Mermaid diagrams for lifecycle, workflow, and handoff. |
 | Mini sample | [docs/samples/atlas-build-tool-mini-output/](samples/atlas-build-tool-mini-output/) | Sanitized representative input/output package. |
+| Delivery cases | [docs/cases/README.md](cases/README.md) | Case registry and template for synthetic and anonymized real delivery cases. |
+| Complete POC | [RPGLE Flow POC](cases/rpgle-flow-poc/README.md) | Pinned requirements, design, 8 program specs, 24 file specs, 35 source files, static evidence and frozen benchmark kit. |
 | Skills | [.claude/](../.claude/) | The 16 Claude Code skills that implement the workflow surface. |
 
 ## Actual Capabilities Delivered
@@ -42,6 +49,7 @@ M1 Planning -> M2 Estimation -> M3 Discovery -> [M4 Build] -> M5 Testing -> M6 D
 - Unit test plan generation and SQL/CL test scaffold generation.
 - Workflow orchestration with routing, Plan Mode, Execute Mode, and approved `task.md` packages.
 - Semi-automated harnesses for DDS generation, code generation, and test scaffold checks.
+- A complete synthetic POC snapshot with local structure/contract and evaluation-package checks.
 
 ## Current Maturity Notes
 
@@ -49,11 +57,13 @@ M1 Planning -> M2 Estimation -> M3 Discovery -> [M4 Build] -> M5 Testing -> M6 D
 - The test harnesses call the `claude` CLI and require local authentication for full execution.
 - Generated RPGLE/CLLE and DDS artifacts still require human IBM i review before compile, integration, or production use.
 - There is no IBM i credential handling or deployment automation in this repo.
+- The POC is Draft with static-check evidence only. IBM i compilation, business execution, model evaluation and productivity comparisons are not yet recorded; no real delivery cases have been added yet.
 
 ## Demo Path For Reviewers
 
-1. Read the top of [README.md](../README.md) for M4 positioning.
-2. Open [docs/assets/atlas-build-lifecycle.mmd](assets/atlas-build-lifecycle.mmd) to see lifecycle placement.
-3. Open [docs/assets/atlas-build-internal-workflow.mmd](assets/atlas-build-internal-workflow.mmd) to understand the tool chain.
-4. Review [docs/samples/atlas-build-tool-mini-output/](samples/atlas-build-tool-mini-output/) for a safe mini example.
-5. Inspect [.claude/ibm-i-workflow-orchestrator/SKILL.md](../.claude/ibm-i-workflow-orchestrator/SKILL.md) and the task.md references for the batching model.
+1. Situation: read the [pilot feedback](../article-pilot-retrospective.md) and identify the development/review burden being addressed.
+2. Solution: use the [value narrative](atlas-engineering-delivery-hub-build-pitch.md) to connect each mechanism to a problem.
+3. Demo: follow BR-06 through the [RPGLE Flow POC](cases/rpgle-flow-poc/README.md), including its source and correction records.
+4. Result: inspect the static evidence and distinguish it from pending effort, rework, compilation and business-execution measurements.
+5. Use the [case template](cases/case-template.md) to plan the next real-case comparison.
+6. Consult the [lifecycle diagram](assets/atlas-build-lifecycle.mmd), [internal workflow](assets/atlas-build-internal-workflow.mmd) and [.claude/ibm-i-workflow-orchestrator/SKILL.md](../.claude/ibm-i-workflow-orchestrator/SKILL.md) as technical backup. The POC is not evidence that the entire orchestrated workflow was executed.

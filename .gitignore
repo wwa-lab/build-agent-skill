@@ -16,6 +16,9 @@
 *.nar
 *.ear
 *.zip
+# Frozen, synthetic POC input kits referenced by the case's checksums and verifier.
+!docs/cases/rpgle-flow-poc/snapshot/benchmark/dist/RPGFLOW-1.0-files.zip
+!docs/cases/rpgle-flow-poc/snapshot/benchmark/dist/RPGFLOW-1.0-text.zip
 *.tar.gz
 *.rar
 

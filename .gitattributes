@@ -1,0 +1,9 @@
+# Preserve the exact bytes used by the imported snapshot and frozen benchmark hashes.
+docs/cases/rpgle-flow-poc/snapshot/** -text
+
+# The frozen CSV templates use CRLF; COPY members retain original final blank lines.
+docs/cases/rpgle-flow-poc/snapshot/benchmark/runs/*.csv whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+docs/cases/rpgle-flow-poc/snapshot/src/QRPGLESRC/ORDCTX.rpgleinc whitespace=blank-at-eol,space-before-tab,-blank-at-eof
+docs/cases/rpgle-flow-poc/snapshot/src/QRPGLESRC/ORDRES.rpgleinc whitespace=blank-at-eol,space-before-tab,-blank-at-eof
+docs/cases/rpgle-flow-poc/snapshot/benchmark/input/src/QRPGLESRC/ORDCTX.rpgleinc whitespace=blank-at-eol,space-before-tab,-blank-at-eof
+docs/cases/rpgle-flow-poc/snapshot/benchmark/input/src/QRPGLESRC/ORDRES.rpgleinc whitespace=blank-at-eol,space-before-tab,-blank-at-eof

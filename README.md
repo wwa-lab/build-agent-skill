@@ -1,20 +1,38 @@
 # Atlas Engineering Delivery Hub - Build
 
-[简体中文](README.zh-CN.md) | [Competition Submission](docs/open-collaboration-submission.md) | [Full Skill Reference](docs/full-reference-readme.md)
+[简体中文](README.zh-CN.md) | [Delivery Cases](docs/cases/README.md) | [Competition Submission](docs/open-collaboration-submission.md) | [Full Skill Reference](docs/full-reference-readme.md)
+
+**Help IBM i delivery teams turn business requirements and existing-code knowledge into implementation work with clear evidence, familiar maintenance conventions, and reviewable outputs.**
+
+## Situation — Why Build This?
+
+An IBM i change requires developers to understand existing source, check file and calling contracts, and preserve the team's maintenance conventions. The [pilot retrospective](article-pilot-retrospective.md) records three usability problems: a full document chain burdened small changes; generated fixed-format code lacked familiar structure, comments and naming; existing-code analysis and test preparation were missing from the workflow. These observations informed the product changes; their cost has not been measured.
+
+## Solution — How Does It Help?
+
+- **Choose the path by scope:** eligible small enhancements with sufficient context use a Mini Requirement to enter Program Spec; new programs and unclear scope use the full specification chain.
+- **Make domain knowledge explicit:** existing source, program steps, file/parameter contracts and reference-source style guide RPGLE, CLLE and DDS generation and review.
+- **Deliver checking evidence with implementation:** retain BR identifiers and cross-spec references, then use review rules, static checks and human judgment to assess artifacts.
+
+The project combines these mechanisms for IBM i delivery. The intended benefits are less repeated understanding and correction work, and reusable maintenance knowledge; real-case comparisons will test those benefits.
+
+## Result — What Is Established?
+
+The [complete synthetic POC](docs/cases/rpgle-flow-poc/README.md) contains requirements, design, 8 program specs, 24 file specs and 35 source files. Its 32 business rules link to specification steps and source locations; 94 steps have static locations, with checks and recorded corrections. Reviewers can follow implementation evidence by rule, and others can recheck the current static materials locally.
+
+There are no IBM i compilation, business-execution or measured productivity results yet. Artifact counts and static locations do not establish business correctness. Anonymized real cases will measure **total human effort, rework and handoff quality**.
+
+The [Situation → Solution → Result narrative and measurement approach](docs/atlas-engineering-delivery-hub-build-pitch.md) is the maintained value story; the [case library](docs/cases/README.md) holds supporting evidence.
 
 ![Atlas Engineering Delivery Hub mobile visual](docs/assets/atlas-engineering-delivery-hub-mobile-static.png)
 
-**Atlas Engineering Delivery Hub - Build is the M4 Build-stage tool within the Atlas Engineering Delivery Hub. It helps teams convert structured delivery evidence into controlled implementation work.**
+## Current Delivery Scope
 
-This repository packages a family of Claude Code skills for IBM i (AS/400) enterprise delivery. It is not the whole Atlas Engineering Delivery Hub framework. It is the M4 Build tool: the part of the lifecycle that turns approved requirements, design evidence, program specifications, and file contracts into implementation-ready artifacts, review gates, and developer test scaffolds.
+This repository is the **M4 Build tool** within Atlas Engineering Delivery Hub / Seven Mountains SDLC. Upstream M3 Discovery capabilities, such as Atlas Phoenix Lens / Legacy Spec Factory, can supply discovery and design evidence; Build prepares implementation and developer-test artifacts for downstream M5 Testing.
 
-```
+```text
 M1 Planning -> M2 Estimation -> M3 Discovery -> [M4 Build] -> M5 Testing -> M6 Deployment -> M7 Maintenance
 ```
-
-In the larger Atlas story, Atlas Phoenix Lens / Legacy Spec Factory is an upstream M3 Discovery capability. This repo is the downstream M4 Build capability for controlled build execution, especially for IBM i teams working with RPGLE, CLLE, DDS, DB2 for i, and legacy enhancement work.
-
-## Current Delivery Scope
 
 The repo currently delivers a **16-skill IBM i build pipeline** under `.claude/`. The skills cover two connected delivery chains:
 
@@ -22,7 +40,13 @@ The repo currently delivers a **16-skill IBM i build pipeline** under `.claude/`
 - **File Chain:** technical design/file requirements -> File Spec with Markdown + JSON -> DDS source for PF/LF/PRTF/DSPF -> DDS review.
 - **Analysis and Routing:** existing source analysis, impact analysis, spec review, and workflow orchestration including task.md planning and approved batch execution.
 
-The repository contains skill definitions, references, examples, diagrams, and semi-automated test harnesses. It does **not** contain an application server, packaged binary, IBM i connector, or automatic deployment runtime.
+The repository contains skill definitions, references, examples, diagrams, semi-automated test harnesses, and delivery cases with source drafts and validation evidence. It does **not** contain an application server, IBM i connector, or automatic deployment runtime.
+
+## Delivery Cases
+
+The [case library](docs/cases/README.md) currently includes a [synthetic multi-warehouse order fulfillment and settlement POC](docs/cases/rpgle-flow-poc/README.md), imported from a pinned version of `rpgle-migration-benchmark`. Its requirements, design, 8 program specs, 24 file specs, 35 source files, static review records, and frozen flow-analysis benchmark materials are available in this repository.
+
+The case demonstrates use of the skill family through source-draft generation and static checks. It has no IBM i compilation, business-execution, model-evaluation, or productivity-comparison results. Future anonymized real delivery cases will use the [same case template](docs/cases/case-template.md), with their origin and actual verification evidence stated separately.
 
 ## Main Capabilities
 
@@ -106,11 +130,15 @@ M3 Discovery evidence
 
 A small sanitized demo package is available at [docs/samples/atlas-build-tool-mini-output/](docs/samples/atlas-build-tool-mini-output/).
 
+For a complete artifact set, follow the [RPGLE Flow POC demo path](docs/cases/rpgle-flow-poc/README.md#建议的-demo-阅读路径). Its recorded workflow stops at source drafts and static checks; the UT and scaffold steps above are not recorded as executed in this case.
+
 ## Directory Overview
 
 ```text
 .claude/                                  # 16 IBM i Claude Code skills
 docs/assets/                              # Mermaid architecture/design visuals
+docs/cases/                               # Delivery cases, evidence and contribution template
+docs/cases/rpgle-flow-poc/                 # Synthetic POC with pinned artifacts and benchmark kit
 docs/samples/atlas-build-tool-mini-output/ # Sanitized mini demo package
 docs/full-reference-readme.md             # Preserved detailed technical README
 docs/open-collaboration-submission.md     # English competition submission draft
@@ -122,6 +150,7 @@ OpenCode_IBMi_Skill_Family.pptx           # Existing presentation asset
 
 ## Key Documents
 
+- [Delivery case library](docs/cases/README.md)
 - [Reviewer index](docs/atlas-engineering-delivery-hub-build-index.md)
 - [Open collaboration submission](docs/open-collaboration-submission.md)
 - [中文提交材料](docs/open-collaboration-submission.zh-CN.md)
@@ -142,6 +171,15 @@ Three skills include semi-automated shell harnesses:
 
 These harnesses invoke the `claude` CLI and then apply structural checks to generated output. They are useful for regression testing skill behavior, but they require an authenticated Claude CLI and can consume model calls.
 
+The included POC also has local checks that use Python 3.9+ and no model calls:
+
+```bash
+python3 docs/cases/rpgle-flow-poc/snapshot/tools/validate_static_source.py
+python3 docs/cases/rpgle-flow-poc/snapshot/tools/prepare_benchmark.py --check
+```
+
+The first rewrites the case's static-check JSON; the second checks the frozen evaluation package without writing it. These are case-specific checks of structure, contracts, traceability and packaging, not IBM i compilation or business tests. See the [case guide](docs/cases/rpgle-flow-poc/README.md) for evidence boundaries and snapshot maintenance.
+
 ## Evidence, Traceability, And Human Review
 
 This tool is designed for controlled build work, not blind automation. It keeps upstream evidence visible, carries BR-xx continuity across layers, labels assumptions, and stops at human approval gates when the next action could change scope or create unsafe code. Generated source and DDS should always be reviewed by qualified IBM i developers before compile, integration, or production use.
@@ -150,7 +188,7 @@ This tool is designed for controlled build work, not blind automation. It keeps 
 
 Near-term contribution areas:
 
-- Add more sanitized end-to-end demo packages for common IBM i change patterns.
+- Add anonymized real delivery cases and measured outcomes alongside the synthetic POC.
 - Expand test harness coverage for orchestrator `task.md` planning and TD-driven batch flows.
 - Add rendered SVG/PNG versions of Mermaid diagrams if a repo-safe renderer is standardized.
 - Add more reviewer examples for compile-precheck and DDS/code review edge cases.

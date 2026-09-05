@@ -16,6 +16,7 @@ Good contributors include:
 
 - Add sanitized examples for common IBM i change types.
 - Improve `docs/samples/atlas-build-tool-mini-output/` with clearer before/after evidence.
+- Add delivery cases through the [case library and template](docs/cases/README.md), distinguishing synthetic POCs from anonymized real delivery evidence.
 - Add or refine test cases under existing `tests/cases/` directories.
 - Improve reviewer examples for code, DDS, compile precheck, or spec review findings.
 - Clarify README, Chinese README, or submission docs where wording is ambiguous.
@@ -46,6 +47,15 @@ For new build patterns or templates:
 - Use "planned", "placeholder", or "TBD" for capabilities that are not already present.
 - Do not describe this repo as the whole Atlas Engineering Delivery Hub. It is the M4 Build tool.
 - Mention Atlas Phoenix Lens only as an upstream M3 Discovery capability when it helps explain lifecycle context.
+- Maintain the value narrative in [the Situation → Solution → Result document](docs/atlas-engineering-delivery-hub-build-pitch.md); README and submission pages summarize it. Lead with the delivery problem and how mechanisms address it. Separate qualitative feedback, completed artifacts and measured benefits, and link every result claim to evidence.
+
+## Delivery Case Contributions
+
+Use [docs/cases/case-template.md](docs/cases/case-template.md) for each new case and register it in [docs/cases/README.md](docs/cases/README.md). Record the business problem, source and skill versions, actual artifacts, human intervention, verification scope, and measured outcomes where available.
+
+Real cases must have permission to share and use anonymized material. State what was replaced, omitted or reconstructed and how that limits reproducibility. A case may provide approved excerpts or aggregate evidence without including original production source or customer data. Keep synthetic and real origins explicit, and do not treat a real origin as proof of successful validation.
+
+Preserve imported snapshots and file hashes. Put later runs or revised artifacts in separate versioned locations. Keep one live skill library under `.claude/` rather than copying skills into every case. Record case findings separately from completed upstream fixes.
 
 ## Testing And Validation Expectations
 
@@ -72,6 +82,7 @@ Running full harnesses may call the `claude` CLI and consume model calls. Includ
 - Never commit customer data, production source members, credentials, screenshots with sensitive system names, API keys, passwords, tokens, or internal hostnames.
 - Use sanitized object names such as `CUSTMNT`, `CUSTMAST`, `ORDHDR`, `TESTLIB`, or `SAMPLELIB`.
 - Keep generated examples small and clearly marked as sample material.
+- Complete case snapshots may be larger than introductory examples; document their scope, provenance and verification limits in `docs/cases/`.
 - If a secret or confidential artifact is accidentally committed, stop, remove it, notify the maintainer, and rotate the exposed credential if applicable.
 
 ## Pull Request Checklist
