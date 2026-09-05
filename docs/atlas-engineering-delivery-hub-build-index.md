@@ -32,6 +32,7 @@ M1 Planning -> M2 Estimation -> M3 Discovery -> [M4 Build] -> M5 Testing -> M6 D
 | Full reference | [docs/full-reference-readme.md](full-reference-readme.md) | Preserved technical README for the IBM i skill family. |
 | Submission draft | [docs/open-collaboration-submission.md](open-collaboration-submission.md) | Reviewer-ready competition submission text. |
 | Chinese submission | [docs/open-collaboration-submission.zh-CN.md](open-collaboration-submission.zh-CN.md) | Chinese submission companion. |
+| Registration pack | [CodeCup 2026 registration pack](codecup-2026-registration-pack.zh-CN.md) | Submitted fields, updated positioning, bilingual description and missing-field checklist. |
 | Pitch | [docs/atlas-engineering-delivery-hub-build-pitch.md](atlas-engineering-delivery-hub-build-pitch.md) | Short pitch, demo story, and talking points. |
 | Interactive deck | [Chinese HTML presentation](presentations/README.md) | 18 slides with scenario routing, BR-06 evidence and speaker notes. |
 | Value evidence | [Pilot retrospective](../article-pilot-retrospective.md) | Qualitative feedback motivating workflow changes; no measured benefit baseline. |
