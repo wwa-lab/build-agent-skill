@@ -1,20 +1,24 @@
 # Atlas Engineering Delivery Hub - Build
 
-[English](README.md) | [交付案例库](docs/cases/README.md) | [参赛提交材料](docs/open-collaboration-submission.zh-CN.md) | [完整技能参考](docs/full-reference-readme.md)
+[English](README.md) | [交付案例库](docs/cases/README.md) | [参赛提交材料](docs/open-collaboration-submission.zh-CN.md) | [完整技能参考](docs/full-reference-readme.md) | [中文交互路演](docs/presentations/README.md)
 
-**让 IBM i 交付团队把业务需求和旧代码知识，转成有依据、符合维护约定、能够逐项评审的实现工作。**
+**企业级 SDD（规范驱动开发）交付实践：将业务需求、系统知识和工程约束，转化为可追溯、可评审、可验证的交付过程。**
+
+IBM i 是首个深入实践场景，当前提供 16 个领域 Skills 和合成 POC 证据。项目探索可迁移的交付方法；其他技术环境的适配与验证尚未完成。
 
 ## Situation：为什么要做？
 
-一次 IBM i 改动需要开发者理解现有源码、核对文件和调用，并保持团队的维护习惯。[既有 Pilot 复盘](article-pilot-retrospective.md)记录了三个使用问题：小改动被要求先走完整文档链；生成的 fixed-format 代码缺少惯用的分隔、注释和命名；旧代码理解与测试准备缺少衔接。这些反馈构成了本项目调整工作流的依据，实际成本尚未量化。
+企业软件的长期演进积累了业务规则、系统依赖和团队约定。我们关注的问题是：如何让 AI 使用这些依据生成实现，并让评审者能够核对规则是否落实？
+
+在首个 IBM i 实践场景中，一次改动需要理解现有源码、核对文件和调用，并保持维护习惯。[既有 Pilot 复盘](article-pilot-retrospective.md)记录了三个使用问题：小改动被要求先走完整文档链；生成的 fixed-format 代码缺少惯用的分隔、注释和命名；旧代码理解与测试准备缺少衔接。这些反馈构成了本项目调整工作流的依据，实际成本尚未量化。
 
 ## Solution：如何解决？
 
-- **按范围选择路径：** 上下文明确、满足条件的小型增强通过 Mini Requirement 进入 Program Spec；新程序或范围不明的工作使用完整规格链。
-- **把领域经验写入依据：** 结合旧源码、程序步骤、文件／参数契约和参考源码风格，指导 RPGLE、CLLE 与 DDS 生成和评审。
+- **按范围选择路径：** 上下文明确的小型变更保留必要规格与检查；新建或范围不明的工作先补齐需求和设计依据。
+- **把领域经验写入依据：** 结合既有系统知识、处理步骤、接口与数据契约，以及团队维护约定，指导生成和评审。
 - **随实现交付检查证据：** 保留 BR 编号及跨规格引用，用评审规则、静态检查和人工判断核对产物。
 
-这三项机制的组合构成本项目的特点。其目标是减少重复理解和修正投入，让维护经验可复用；效果将通过真实案例对比检验。
+这三项机制组成企业级 SDD 的实践方法。首个 IBM i 实现将它们落实为 Mini Requirement → Program Spec 短路径、程序／文件契约以及 RPGLE、CLLE 与 DDS 的生成评审规则。其目标是减少重复理解和修正投入，让维护经验可复用；效果将通过真实案例对比检验。
 
 ## Result：已经做到了什么？
 
@@ -25,6 +29,16 @@
 [完整 Situation → Solution → Result 主线与收益测量方法](docs/atlas-engineering-delivery-hub-build-pitch.md)是价值叙事的维护入口；[案例库](docs/cases/README.md)保存证据。
 
 ![Atlas Engineering Delivery Hub 移动端视觉图](docs/assets/atlas-engineering-delivery-hub-mobile-static.png)
+
+## 方法与领域实践
+
+| 层次 | 作用 | 当前状态 |
+| --- | --- | --- |
+| 企业交付问题 | 理解上下文、控制变更范围、核对规则落点 | 由 Pilot 反馈和案例问题提供具体依据 |
+| SDD 实践方法 | 分层规格、显式契约、规则追踪、人工确认与验证反馈 | 已形成协议、模板和评审规则 |
+| 领域实现 | 将方法落实为具体生成与检查能力 | 首个 IBM i 实现；其他技术栈待适配和验证 |
+
+迁移到新领域需要补齐该领域的契约、生成规范、评审规则和验证工具，再通过案例检验。详见[领域扩展路线](docs/atlas-engineering-delivery-hub-build-pitch.md#领域扩展路线)。
 
 ## 当前交付范围
 
@@ -202,7 +216,7 @@ python3 docs/cases/rpgle-flow-poc/snapshot/tools/prepare_benchmark.py --check
 
 ## 贡献
 
-欢迎 IBM i 开发者、业务分析师、架构师、测试人员和 AI 工作流维护者参与。开始前请阅读 [CONTRIBUTING.md](CONTRIBUTING.md)，新增 Build pattern 或模板时要保证证据清晰、数据脱敏、可评审。
+欢迎企业开发者、业务分析师、架构师、测试人员和 AI 工作流维护者参与，贡献真实案例与新的领域适配。开始前请阅读 [CONTRIBUTING.md](CONTRIBUTING.md)，新增 Build pattern 或模板时要保证证据清晰、数据脱敏、可评审。
 
 ## License
 

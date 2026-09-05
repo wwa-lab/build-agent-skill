@@ -4,13 +4,15 @@ This submission summarizes the maintained [Situation → Solution → Result nar
 
 ## Project And Value
 
-**Atlas Engineering Delivery Hub – Build** helps IBM i developers, reviewers and delivery teams turn business requirements and existing-code knowledge into implementation work with clear evidence and familiar maintenance conventions.
+**Atlas Engineering Delivery Hub – Build** explores enterprise SDD (Spec-Driven Development) in practice: turning business requirements, system knowledge and engineering constraints into a traceable, reviewable and verifiable delivery process.
 
-It is a reusable domain-skill toolkit within Atlas's M4 Build stage. The intended improvements are lower human effort, less rework and better handoffs. Current evidence consists of implemented workflow rules and a synthetic POC with static checks.
+IBM i is the first in-depth practice context. The current toolkit supports that domain; other technology environments await adaptation and validation. It is a reusable domain-skill toolkit within Atlas's M4 Build stage. The intended improvements are lower human effort, less rework and better handoffs. Current evidence consists of implemented workflow rules and a synthetic POC with static checks.
 
 ## 1. Situation — Why Build This?
 
-An IBM i change requires knowledge of existing logic, file layouts, calling contracts and team conventions. The [pilot retrospective](../article-pilot-retrospective.md) records direct usability feedback: a full specification chain burdened small changes; generated fixed-format code lacked familiar structure, comments and naming; existing-code analysis and test preparation were absent from the workflow.
+Enterprise AI delivery needs explicit business context, system constraints and rule traceability so developers and reviewers can assess generated work.
+
+In the first IBM i context, a change requires knowledge of existing logic, file layouts, calling contracts and team conventions. The [pilot retrospective](../article-pilot-retrospective.md) records direct usability feedback: a full specification chain burdened small changes; generated fixed-format code lacked familiar structure, comments and naming; existing-code analysis and test preparation were absent from the workflow.
 
 Developers and reviewers therefore still needed to supply context and organize generated artifacts. The pilot provides qualitative feedback, without a measured effort baseline or an estimate of team-wide cost.
 
@@ -22,9 +24,9 @@ Developers and reviewers therefore still needed to supply context and organize g
 | Existing source, layered specs, file/parameter contracts and maintenance style guide generation | Missing system and team context | Make domain knowledge reusable and reviewable |
 | BR traceability, cross-spec references, review rules and static checks accompany artifacts | Reconstructing the relationship between requirements and implementation | Provide concrete implementation evidence and correction records |
 
-The distinctive proposition is this combination for IBM i delivery. SDD and Skills are methods the project adopts; it does not claim to have invented them or demonstrated superiority over competing products.
+The distinctive proposition is to carry enterprise constraints through SDD and test the method through domain cases. The table describes its first IBM i implementation. SDD and Skills are methods the project adopts; it does not claim to have invented them or demonstrated superiority over competing products.
 
-The 16 skills cover analysis, specifications, program/DDS generation, reviews, developer-test preparation and orchestration protocols. They support the solution; the presentation begins with the problem and mechanisms.
+The current 16 IBM i skills cover analysis, specifications, program/DDS generation, reviews, developer-test preparation and orchestration protocols. They support the solution; the presentation begins with the problem and mechanisms.
 
 ## 3. Result — What Is Established, And What Benefit Is Expected?
 
@@ -43,14 +45,14 @@ Next, an anonymized real enhancement with clear acceptance criteria will record 
 
 ## Presentation Flow
 
-1. Situation: open with the small-change friction from the pilot.
+1. Situation: open with enterprise delivery questions about context, constraints and review evidence, then ground them in the IBM i pilot.
 2. Solution: connect each of the three mechanisms to a problem.
 3. Demo: follow BR-06 through the synthetic POC's specification, request ledger, source and correction record.
 4. Result: show available evidence, then the intended benefits and real-case measurement plan.
 
 ## Collaboration And Scope
 
-Contributors can add anonymized real cases, domain-rule corrections and reusable checks. Use the [case template](cases/case-template.md) to record the situation, actual solution and results. The project currently has no IBM i connector, deployment runtime or complete business-execution validation.
+Contributors can add anonymized real cases, domain-rule corrections and adaptations for new technology contexts. The [domain expansion approach](atlas-engineering-delivery-hub-build-pitch.md#领域扩展路线) requires domain contracts, generation/review rules and actual validation tools. Use the [case template](cases/case-template.md) to record the situation, actual solution and results. The project currently has no IBM i connector, deployment runtime or complete business-execution validation.
 
 - [Maintained value narrative and short pitch](atlas-engineering-delivery-hub-build-pitch.md)
 - [Case library and evidence](cases/README.md)

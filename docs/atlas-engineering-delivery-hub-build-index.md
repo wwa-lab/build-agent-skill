@@ -4,11 +4,13 @@ This page is the fast navigation map for reviewers evaluating this repository as
 
 ## One-Sentence Positioning
 
-Atlas Build helps IBM i delivery teams turn business requirements and existing-code knowledge into implementation work with clear evidence, familiar maintenance conventions and reviewable outputs.
+Enterprise SDD (Spec-Driven Development) in practice: turn business requirements, system knowledge and engineering constraints into a traceable, reviewable and verifiable delivery process. IBM i is the first in-depth practice context; the current 16 skills implement that domain, while transferability to other stacks remains to be validated.
 
 ## Start With Situation → Solution → Result
 
 Read the [maintained value narrative](atlas-engineering-delivery-hub-build-pitch.md) first. It connects the [pilot's qualitative feedback](../article-pilot-retrospective.md) to three mechanisms—scope-aware routing, reusable domain rules and checking evidence—and separates established POC results from benefits awaiting real-case measurement.
+
+See the [method and domain expansion approach](atlas-engineering-delivery-hub-build-pitch.md#领域扩展路线) for what must be adapted and verified before adding another technology context.
 
 ## Where It Fits
 
@@ -31,6 +33,7 @@ M1 Planning -> M2 Estimation -> M3 Discovery -> [M4 Build] -> M5 Testing -> M6 D
 | Submission draft | [docs/open-collaboration-submission.md](open-collaboration-submission.md) | Reviewer-ready competition submission text. |
 | Chinese submission | [docs/open-collaboration-submission.zh-CN.md](open-collaboration-submission.zh-CN.md) | Chinese submission companion. |
 | Pitch | [docs/atlas-engineering-delivery-hub-build-pitch.md](atlas-engineering-delivery-hub-build-pitch.md) | Short pitch, demo story, and talking points. |
+| Interactive deck | [Chinese HTML presentation](presentations/README.md) | 18 slides with scenario routing, BR-06 evidence and speaker notes. |
 | Value evidence | [Pilot retrospective](../article-pilot-retrospective.md) | Qualitative feedback motivating workflow changes; no measured benefit baseline. |
 | Contribution guide | [CONTRIBUTING.md](../CONTRIBUTING.md) | How contributors can safely extend the tool. |
 | Architecture visuals | [docs/assets/](assets/) | Mermaid diagrams for lifecycle, workflow, and handoff. |
@@ -61,7 +64,7 @@ M1 Planning -> M2 Estimation -> M3 Discovery -> [M4 Build] -> M5 Testing -> M6 D
 
 ## Demo Path For Reviewers
 
-1. Situation: read the [pilot feedback](../article-pilot-retrospective.md) and identify the development/review burden being addressed.
+1. Situation: start with enterprise AI delivery questions about context, constraints and review evidence; then read the IBM i [pilot feedback](../article-pilot-retrospective.md) as a concrete example.
 2. Solution: use the [value narrative](atlas-engineering-delivery-hub-build-pitch.md) to connect each mechanism to a problem.
 3. Demo: follow BR-06 through the [RPGLE Flow POC](cases/rpgle-flow-poc/README.md), including its source and correction records.
 4. Result: inspect the static evidence and distinguish it from pending effort, rework, compilation and business-execution measurements.

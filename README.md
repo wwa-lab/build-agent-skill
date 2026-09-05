@@ -1,20 +1,24 @@
 # Atlas Engineering Delivery Hub - Build
 
-[简体中文](README.zh-CN.md) | [Delivery Cases](docs/cases/README.md) | [Competition Submission](docs/open-collaboration-submission.md) | [Full Skill Reference](docs/full-reference-readme.md)
+[简体中文](README.zh-CN.md) | [Delivery Cases](docs/cases/README.md) | [Competition Submission](docs/open-collaboration-submission.md) | [Full Skill Reference](docs/full-reference-readme.md) | [Interactive Deck (Chinese)](docs/presentations/README.md)
 
-**Help IBM i delivery teams turn business requirements and existing-code knowledge into implementation work with clear evidence, familiar maintenance conventions, and reviewable outputs.**
+**Enterprise SDD (Spec-Driven Development) in practice: turn business requirements, system knowledge and engineering constraints into a traceable, reviewable and verifiable delivery process.**
+
+IBM i is the first in-depth practice context, with 16 domain skills and synthetic POC evidence. The project explores transferable delivery methods; adaptation and validation for other technology environments remain future work.
 
 ## Situation — Why Build This?
 
-An IBM i change requires developers to understand existing source, check file and calling contracts, and preserve the team's maintenance conventions. The [pilot retrospective](article-pilot-retrospective.md) records three usability problems: a full document chain burdened small changes; generated fixed-format code lacked familiar structure, comments and naming; existing-code analysis and test preparation were missing from the workflow. These observations informed the product changes; their cost has not been measured.
+Long-lived enterprise software accumulates business rules, system dependencies and team conventions. The question we address is how AI can use that knowledge to produce implementation work whose rules and constraints reviewers can check.
+
+In the first IBM i practice context, changes require understanding existing source, checking file and calling contracts, and preserving maintenance conventions. The [pilot retrospective](article-pilot-retrospective.md) records three usability problems: a full document chain burdened small changes; generated fixed-format code lacked familiar structure, comments and naming; existing-code analysis and test preparation were missing from the workflow. These observations informed the product changes; their cost has not been measured.
 
 ## Solution — How Does It Help?
 
-- **Choose the path by scope:** eligible small enhancements with sufficient context use a Mini Requirement to enter Program Spec; new programs and unclear scope use the full specification chain.
-- **Make domain knowledge explicit:** existing source, program steps, file/parameter contracts and reference-source style guide RPGLE, CLLE and DDS generation and review.
+- **Choose the path by scope:** small changes with sufficient context retain necessary specifications and checks; new work or unclear scope first establishes requirement and design evidence.
+- **Make domain knowledge explicit:** existing-system knowledge, processing steps, interface and data contracts, and team conventions guide generation and review.
 - **Deliver checking evidence with implementation:** retain BR identifiers and cross-spec references, then use review rules, static checks and human judgment to assess artifacts.
 
-The project combines these mechanisms for IBM i delivery. The intended benefits are less repeated understanding and correction work, and reusable maintenance knowledge; real-case comparisons will test those benefits.
+These mechanisms form the enterprise SDD practice approach. The first IBM i implementation applies them through the Mini Requirement → Program Spec fast path, program/file contracts, and RPGLE, CLLE and DDS generation and review rules. The intended benefits are less repeated understanding and correction work, and reusable maintenance knowledge; real-case comparisons will test those benefits.
 
 ## Result — What Is Established?
 
@@ -25,6 +29,16 @@ There are no IBM i compilation, business-execution or measured productivity resu
 The [Situation → Solution → Result narrative and measurement approach](docs/atlas-engineering-delivery-hub-build-pitch.md) is the maintained value story; the [case library](docs/cases/README.md) holds supporting evidence.
 
 ![Atlas Engineering Delivery Hub mobile visual](docs/assets/atlas-engineering-delivery-hub-mobile-static.png)
+
+## Method And Domain Practice
+
+| Layer | Purpose | Current status |
+| --- | --- | --- |
+| Enterprise delivery problems | Understand context, bound changes and locate rule implementations | Grounded in pilot feedback and case findings |
+| SDD practice method | Layered specifications, explicit contracts, rule traceability, human confirmation and validation feedback | Protocols, templates and review rules exist |
+| Domain implementation | Apply the method through specific generation and checking capabilities | IBM i first; other technology stacks await adaptation and validation |
+
+A new domain needs its own contracts, generation conventions, review rules and validation tools, followed by case evidence. See the [domain expansion approach](docs/atlas-engineering-delivery-hub-build-pitch.md#领域扩展路线).
 
 ## Current Delivery Scope
 
@@ -202,7 +216,7 @@ Longer-term ideas:
 
 ## Contributing
 
-Contributions are welcome from IBM i developers, business analysts, architects, testers, and AI workflow maintainers. Start with [CONTRIBUTING.md](CONTRIBUTING.md), and keep new build patterns evidence-based, sanitized, and reviewable.
+Contributions are welcome from enterprise developers, business analysts, architects, testers and AI workflow maintainers, including real cases and new domain adaptations. Start with [CONTRIBUTING.md](CONTRIBUTING.md), and keep new build patterns evidence-based, sanitized, and reviewable.
 
 ## License
 
