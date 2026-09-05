@@ -27,8 +27,8 @@ M1 Planning -> M2 Estimation -> M3 Discovery -> [M4 Build] -> M5 Testing -> M6 D
 
 | Area | Location | What to look for |
 |------|----------|------------------|
-| Root entry | [README.md](../README.md) | Competition-facing project narrative and quick start. |
-| Chinese entry | [README.zh-CN.md](../README.zh-CN.md) | Natural Chinese version of the project narrative. |
+| Chinese homepage | [README.md](../README.md) | Default competition-facing project narrative and quick start in Simplified Chinese. |
+| English companion | [README.en.md](../README.en.md) | English version, linked from the Chinese homepage. |
 | Full reference | [docs/full-reference-readme.md](full-reference-readme.md) | Preserved technical README for the IBM i skill family. |
 | Submission draft | [docs/open-collaboration-submission.md](open-collaboration-submission.md) | Reviewer-ready competition submission text. |
 | Chinese submission | [docs/open-collaboration-submission.zh-CN.md](open-collaboration-submission.zh-CN.md) | Chinese submission companion. |

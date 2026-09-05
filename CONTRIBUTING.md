@@ -42,7 +42,7 @@ For new build patterns or templates:
 
 ## Documentation Rules
 
-- Keep the default repo entry in English and maintain `README.zh-CN.md` as the natural Chinese companion.
+- Keep `README.md` as the default Simplified Chinese entry and maintain `README.en.md` as the English companion, with reciprocal language links. `README.zh-CN.md` is a compatibility entry for existing links; do not duplicate the Chinese content there.
 - Do not duplicate long technical material in multiple places. Link to `docs/full-reference-readme.md` or skill-local references when possible.
 - Use "planned", "placeholder", or "TBD" for capabilities that are not already present.
 - Do not describe this repo as the whole Atlas Engineering Delivery Hub. It is the M4 Build tool.
