@@ -4,7 +4,7 @@ This file preserves the original detailed technical README for the IBM i skill f
 
 ---
 
-A complete Claude Code skill family for IBM i (AS/400) enterprise development — from raw requirement intake through specification, code generation, review, unit test planning, and executable test scaffold generation. Supports both **single-step routing** (default, one decision at a time) and **task.md batched execution** (Plan → Approve → Execute, optionally driven straight from a Technical Design).
+A complete Agent Skill family for IBM i (AS/400) enterprise development — from raw requirement intake through specification, code generation, review, unit test planning, and executable test scaffold generation. Supports both **single-step routing** (default, one decision at a time) and **task.md batched execution** (Plan → Approve → Execute, optionally driven straight from a Technical Design).
 
 ## Document Chain
 
@@ -79,12 +79,12 @@ In addition to one-step-at-a-time routing, the orchestrator can drive a multi-ta
 | §7 Open Questions | TBDs carried from input specs, plus auto-merged TBDs from generated Layer A specs (TD-driven mode). Each entry is `blocking: yes / no / pending-human-judgment` |
 | §8 Manifest | Final deliverables list with output paths, hashes, reviewer verdicts |
 
-**Plan Mode** (orchestrator) reads an approved spec / TD and emits a `task.md` draft. **Execute Mode** reads an approved `task.md` and runs the batch. Reference docs live under `.claude/ibm-i-workflow-orchestrator/references/`:
+**Plan Mode** (orchestrator) reads an approved spec / TD and emits a `task.md` draft. **Execute Mode** reads an approved `task.md` and runs the batch. See the [orchestrator references](../agent-skills/ibm-i-workflow-orchestrator/references/):
 
 - `task-md-template.md` — canonical structure, mode dictionary, status dictionary, placeholder rules, parallel safety rules
 - `task-md-execution-protocol.md` — preconditions, topological scheduler, gate evaluation, TBD handling, idempotent resume
 
-Five worked samples are in `.claude/ibm-i-workflow-orchestrator/examples/`.
+Five worked samples are in the [orchestrator examples](../agent-skills/ibm-i-workflow-orchestrator/examples/).
 
 ### Plan Mode Entry Shapes
 
@@ -97,10 +97,10 @@ Five worked samples are in `.claude/ibm-i-workflow-orchestrator/examples/`.
 
 ## Installation
 
-Copy the `.claude/` directory into your project. Each skill is self-contained in its `SKILL.md`:
+Choose complete skill folders from the [Agent Skills directory](../agent-skills/), including references and templates, and install them according to your company-approved Agent tool's requirements. Verify skill discovery, tool invocation and approval behavior in that tool before use. The legacy regression harness backend requires separate adaptation to approved internal tooling. The directory contents are:
 
 ```
-.claude/
+Agent Skills directory (linked above)
 ├── ibm-i-requirement-normalizer/SKILL.md    # V1.0 + examples
 ├── ibm-i-functional-spec/SKILL.md           # V1.0 + references, examples
 ├── ibm-i-technical-design/SKILL.md          # V1.0 + references, examples
@@ -136,7 +136,7 @@ Copy the `.claude/` directory into your project. Each skill is self-contained in
 
 ## Usage
 
-Skills trigger automatically based on context. You can also invoke them by name:
+Once installed and verified in a compatible Agent tool, skills can be selected by context or invoked by name, depending on the tool's capabilities:
 
 ```
 # --- Routing Mode (default — one step at a time) ---

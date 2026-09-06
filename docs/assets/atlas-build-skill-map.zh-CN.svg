@@ -1,0 +1,189 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1490" viewBox="0 0 1600 1490" role="img" aria-labelledby="title desc">
+  <title id="title">Atlas Build：16 个 Skills 如何协作交付</title>
+  <desc id="desc">工作流编排器按输入选择路径。需求整理、功能规格、技术设计形成上游依据；既有源码经程序分析与变更影响分析补充依据。技术设计分别进入程序规格和文件规格。程序规格驱动代码生成、编译预检查与代码评审；文件规格 JSON 驱动 DDS 生成与评审。任意规格、变更请求或原始输入可进入单元测试计划与 SQL/CL 测试脚手架。规格评审覆盖各层规格。合格的小改动可由 Mini Requirement 直接进入程序规格。图展示当前能力，未声称所有步骤在 POC 中执行。</desc>
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 9 4.5 0 9Z" fill="#db0011"/></marker>
+    <marker id="context-arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 9 4.5 0 9Z" fill="#62666b"/></marker>
+    <style>
+      text { font-family: Arial, 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif; fill: #18191b; }
+      .headline { font-size: 44px; font-weight: 750; }
+      .sub { font-size: 23px; fill: #62666b; }
+      .section { font-size: 23px; font-weight: 700; }
+      .label { font-size: 25px; font-weight: 700; }
+      .en { font-size: 19px; fill: #51565c; }
+      .detail { font-size: 19px; fill: #62666b; }
+      .note { font-size: 19px; fill: #62666b; }
+      .white { fill: #fff; }
+      .red { fill: #db0011; }
+      .card { fill: #fff; stroke: #d0d2d5; stroke-width: 1.5; }
+      .gate { fill: #fff5f5; stroke: #db0011; stroke-width: 1.5; }
+      .input { fill: #f0f1f2; stroke: #d0d2d5; stroke-width: 1.5; }
+      .flow { fill: none; stroke: #db0011; stroke-width: 2.5; marker-end: url(#arrow); }
+      .context { fill: none; stroke: #62666b; stroke-width: 2; stroke-dasharray: 7 5; marker-end: url(#context-arrow); }
+    </style>
+  </defs>
+  <rect width="1600" height="1490" rx="20" fill="#fff"/>
+  <rect x="48" y="42" width="7" height="74" fill="#db0011"/>
+  <text x="78" y="76" class="headline">Atlas Build · 16 个 Skills，一条有据可查的交付链</text>
+  <text x="78" y="113" class="sub">企业级 SDD 的首个领域实践：IBM i　｜　需求 → 规格 → 实现 → 评审与测试准备</text>
+
+  <!-- Cross-stage routing: this is a skill, not an application runtime. -->
+  <g data-skill="ibm-i-workflow-orchestrator">
+    <rect x="48" y="150" width="1504" height="80" rx="12" fill="#18191b"/>
+    <text x="76" y="182" class="label white">工作流编排 · Workflow Orchestrator</text>
+    <text x="76" y="212" class="en white">识别输入与目标 → 选择路径 → 生成 task.md 计划 → 按批准的计划执行</text>
+    <text x="1524" y="197" text-anchor="end" class="en white">贯穿所有阶段</text>
+  </g>
+
+  <!-- 01: intake and upstream evidence -->
+  <rect x="48" y="262" width="1380" height="318" rx="12" fill="#f7f7f8"/>
+  <text x="76" y="299" class="section">01　整理需求与系统知识</text>
+  <text x="1400" y="299" class="note" text-anchor="end">新建走完整链；已有依据可从相应阶段进入</text>
+  <rect x="80" y="324" width="270" height="92" rx="9" class="input"/>
+  <text x="215" y="355" text-anchor="middle" class="label">业务需求 / CR</text>
+  <text x="215" y="385" text-anchor="middle" class="en">工单、邮件、会议记录</text>
+  <g data-skill="ibm-i-requirement-normalizer">
+    <rect x="430" y="324" width="270" height="92" rx="9" class="card"/>
+    <text x="565" y="355" text-anchor="middle" class="label">需求整理</text>
+    <text x="565" y="385" text-anchor="middle" class="en">Requirement Normalizer</text>
+  </g>
+  <g data-skill="ibm-i-functional-spec">
+    <rect x="780" y="324" width="270" height="92" rx="9" class="card"/>
+    <text x="915" y="355" text-anchor="middle" class="label">功能规格</text>
+    <text x="915" y="385" text-anchor="middle" class="en">Functional Spec</text>
+  </g>
+  <g data-skill="ibm-i-technical-design">
+    <rect x="1130" y="324" width="270" height="92" rx="9" class="card"/>
+    <text x="1265" y="355" text-anchor="middle" class="label">技术设计</text>
+    <text x="1265" y="385" text-anchor="middle" class="en">Technical Design</text>
+  </g>
+  <path d="M350 370H425" class="flow"/>
+  <path d="M700 370H775" class="flow"/>
+  <path d="M1050 370H1125" class="flow"/>
+  <rect x="80" y="465" width="270" height="92" rx="9" class="input"/>
+  <text x="215" y="498" text-anchor="middle" class="label">既有源码</text>
+  <text x="215" y="528" text-anchor="middle" class="en">先理解，再分析变更</text>
+  <g data-skill="ibm-i-program-analyzer">
+    <rect x="430" y="465" width="270" height="92" rx="9" class="card"/>
+    <text x="565" y="498" text-anchor="middle" class="label">程序分析</text>
+    <text x="565" y="528" text-anchor="middle" class="en">Program Analyzer</text>
+  </g>
+  <g data-skill="ibm-i-impact-analyzer">
+    <rect x="780" y="465" width="270" height="92" rx="9" class="card"/>
+    <text x="915" y="498" text-anchor="middle" class="label">变更影响分析</text>
+    <text x="915" y="528" text-anchor="middle" class="en">Impact Analyzer</text>
+  </g>
+  <path d="M350 511H425" class="flow"/>
+  <path d="M700 511H775" class="flow"/>
+  <text x="740" y="496" text-anchor="middle" class="detail">+ CR</text>
+  <path d="M1050 511H1265V421" class="context"/>
+  <text x="1080" y="551" class="note">按范围补设计或进入程序规格</text>
+  <text x="76" y="610" class="note">小改动短路径：Mini Requirement → 程序规格（满足准入条件）</text>
+
+  <!-- 02: program chain -->
+  <rect x="48" y="656" width="1380" height="171" rx="12" fill="#f7f7f8"/>
+  <text x="76" y="688" class="section">02　程序链</text>
+  <text x="1400" y="688" class="note" text-anchor="end">实现规则 → 生成源码 → 核对实现</text>
+  <g data-skill="ibm-i-program-spec">
+    <rect x="80" y="702" width="270" height="100" rx="9" class="card"/>
+    <text x="215" y="732" text-anchor="middle" class="label">程序规格</text>
+    <text x="215" y="760" text-anchor="middle" class="en">Program Spec</text>
+    <text x="215" y="786" text-anchor="middle" class="detail">逻辑步骤与接口契约</text>
+  </g>
+  <g data-skill="ibm-i-code-generator">
+    <rect x="430" y="702" width="270" height="100" rx="9" class="card"/>
+    <text x="565" y="732" text-anchor="middle" class="label">代码生成</text>
+    <text x="565" y="760" text-anchor="middle" class="en">Code Generator</text>
+    <text x="565" y="786" text-anchor="middle" class="detail">RPGLE / CLLE</text>
+  </g>
+  <g data-skill="ibm-i-compile-precheck">
+    <rect x="780" y="702" width="270" height="100" rx="9" class="gate"/>
+    <text x="915" y="732" text-anchor="middle" class="label">编译预检查</text>
+    <text x="915" y="760" text-anchor="middle" class="en">Compile Precheck</text>
+    <text x="915" y="786" text-anchor="middle" class="detail">静态检查，非实际编译</text>
+  </g>
+  <g data-skill="ibm-i-code-reviewer">
+    <rect x="1130" y="702" width="270" height="100" rx="9" class="gate"/>
+    <text x="1265" y="732" text-anchor="middle" class="label">代码评审</text>
+    <text x="1265" y="760" text-anchor="middle" class="en">Code Reviewer</text>
+    <text x="1265" y="786" text-anchor="middle" class="detail">对照 Program Spec</text>
+  </g>
+  <path d="M350 752H425" class="flow"/>
+  <path d="M700 752H775" class="flow"/>
+  <path d="M1050 752H1125" class="flow"/>
+
+  <!-- 03: file chain -->
+  <rect x="48" y="870" width="1380" height="171" rx="12" fill="#f7f7f8"/>
+  <text x="76" y="902" class="section">03　文件链</text>
+  <text x="1400" y="902" class="note" text-anchor="end">程序与文件规格通过稳定 ID 互引</text>
+  <g data-skill="ibm-i-file-spec">
+    <rect x="80" y="916" width="270" height="100" rx="9" class="card"/>
+    <text x="215" y="946" text-anchor="middle" class="label">文件规格</text>
+    <text x="215" y="974" text-anchor="middle" class="en">File Spec</text>
+    <text x="215" y="1000" text-anchor="middle" class="detail">Markdown + JSON 契约</text>
+  </g>
+  <g data-skill="ibm-i-dds-generator">
+    <rect x="430" y="916" width="270" height="100" rx="9" class="card"/>
+    <text x="565" y="946" text-anchor="middle" class="label">DDS 生成</text>
+    <text x="565" y="974" text-anchor="middle" class="en">DDS Generator</text>
+    <text x="565" y="1000" text-anchor="middle" class="detail">消费 File Spec JSON</text>
+  </g>
+  <g data-skill="ibm-i-dds-reviewer">
+    <rect x="780" y="916" width="270" height="100" rx="9" class="gate"/>
+    <text x="915" y="946" text-anchor="middle" class="label">DDS 评审</text>
+    <text x="915" y="974" text-anchor="middle" class="en">DDS Reviewer</text>
+    <text x="915" y="1000" text-anchor="middle" class="detail">对照 File Spec</text>
+  </g>
+  <rect x="1130" y="916" width="270" height="100" rx="9" class="input"/>
+  <text x="1265" y="951" text-anchor="middle" class="label">源码与评审记录</text>
+  <text x="1265" y="984" text-anchor="middle" class="en">PF / LF / PRTF / DSPF</text>
+  <path d="M350 966H425" class="flow"/>
+  <path d="M700 966H775" class="flow"/>
+  <path d="M1050 966H1125" class="flow"/>
+
+  <!-- 04: test preparation does not require a code-review pass first. -->
+  <rect x="48" y="1074" width="1380" height="171" rx="12" fill="#f7f7f8"/>
+  <text x="76" y="1106" class="section">04　测试准备支线</text>
+  <text x="1400" y="1106" class="note" text-anchor="end">可与实现并行开展</text>
+  <rect x="80" y="1120" width="270" height="100" rx="9" class="input"/>
+  <text x="215" y="1155" text-anchor="middle" class="label">规格 / CR / 原始输入</text>
+  <text x="215" y="1188" text-anchor="middle" class="en">沿需求准备验证场景</text>
+  <g data-skill="ibm-i-ut-plan-generator">
+    <rect x="430" y="1120" width="270" height="100" rx="9" class="card"/>
+    <text x="565" y="1150" text-anchor="middle" class="label">单元测试计划</text>
+    <text x="565" y="1178" text-anchor="middle" class="en">UT Plan Generator</text>
+    <text x="565" y="1204" text-anchor="middle" class="detail">场景、条件与预期结果</text>
+  </g>
+  <g data-skill="ibm-i-test-scaffold">
+    <rect x="780" y="1120" width="270" height="100" rx="9" class="card"/>
+    <text x="915" y="1150" text-anchor="middle" class="label">测试脚手架</text>
+    <text x="915" y="1178" text-anchor="middle" class="en">Test Scaffold</text>
+    <text x="915" y="1204" text-anchor="middle" class="detail">SQL / CL 脚本</text>
+  </g>
+  <rect x="1130" y="1120" width="270" height="100" rx="9" class="input"/>
+  <text x="1265" y="1155" text-anchor="middle" class="label">交接环境执行</text>
+  <text x="1265" y="1188" text-anchor="middle" class="en">补齐配置、数据与执行证据</text>
+  <path d="M350 1170H425" class="flow"/>
+  <path d="M700 1170H775" class="flow"/>
+  <path d="M1050 1170H1125" class="flow"/>
+
+  <!-- Cross-lane connectors are drawn over backgrounds and clear of section headings. -->
+  <path d="M1400 352H1452V642H300V697" class="flow"/>
+  <path d="M1400 386H1516V856H300V911" class="flow"/>
+
+  <!-- Spec Reviewer is cross-cutting, not only a Program Spec reviewer. -->
+  <g data-skill="ibm-i-spec-reviewer">
+    <rect x="48" y="1274" width="1504" height="80" rx="12" class="gate"/>
+    <text x="76" y="1307" class="label">规格评审 · Spec Reviewer</text>
+    <text x="76" y="1337" class="en">覆盖需求整理产物、功能规格、技术设计、程序规格与文件规格；问题反馈至对应阶段修正</text>
+    <text x="1524" y="1321" text-anchor="end" class="en red">跨层质量检查</text>
+  </g>
+  <path d="M76 1390H132" class="flow"/>
+  <text x="148" y="1397" class="note">主要产物流转</text>
+  <path d="M354 1390H410" class="context"/>
+  <text x="426" y="1397" class="note">补充分析依据</text>
+  <rect x="656" y="1378" width="24" height="24" rx="4" class="gate"/>
+  <text x="694" y="1397" class="note">评审 / 预检查</text>
+  <text x="1524" y="1397" text-anchor="end" class="note">业务规则 BR-xx 贯穿，未知项显式保留</text>
+  <text x="76" y="1443" class="note">图示为当前技能能力；实际按范围选择步骤。静态检查不代表编译或业务验证，POC 未记录 UT / 脚手架执行。</text>
+</svg>

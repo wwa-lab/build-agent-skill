@@ -2,7 +2,7 @@
 
 This library records how the IBM i skills have been used, the artifacts produced, and the evidence available to assess them. Cases complement the [small introductory sample](../samples/atlas-build-tool-mini-output/README.md). They are reference material, not an application runtime.
 
-案例按稳定 ID 收录在同一目录下，通过“来源类型”和“验证状态”区分合成 POC 与脱敏真实案例。业务规则、规格和源码保存在各自案例中；通用技能继续维护在根目录 [`.claude/`](../../.claude/)。
+案例按稳定 ID 收录在同一目录下，通过“来源类型”和“验证状态”区分合成 POC 与脱敏真实案例。业务规则、规格和源码保存在各自案例中；通用技能继续维护在根目录 [`agent-skills/`](../../agent-skills/)。
 
 ## Cases / 已收录案例
 

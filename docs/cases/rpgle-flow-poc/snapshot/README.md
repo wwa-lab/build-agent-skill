@@ -1,6 +1,6 @@
 # RPGLE 内外网模型对比评测
 
-> 此页保留来源项目的阶段说明；本仓库的案例定位、复核方法和维护规则见[案例入口](../README.md)。原文中的 `.agent` 指来源项目的技能布局，当前仓库的技能维护于 `.claude/`。
+> 此页保留来源项目的阶段说明；本仓库的案例定位、复核方法和维护规则见[案例入口](../README.md)。原文中的 `.agent` 指来源项目的技能布局，当前仓库的技能维护于 `agent-skills/`。
 
 使用完全虚构的「多仓订单履约与结算」样本，比较模型对大型固定格式 RPGLE 的静态理解能力。重点为 Operation Flow、System Flow、Data Flow 和 Transaction Flow；Program Flow 是交易路径分析的基础证据。
 
