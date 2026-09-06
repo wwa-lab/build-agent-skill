@@ -79,12 +79,12 @@ In addition to one-step-at-a-time routing, the orchestrator can drive a multi-ta
 | §7 Open Questions | TBDs carried from input specs, plus auto-merged TBDs from generated Layer A specs (TD-driven mode). Each entry is `blocking: yes / no / pending-human-judgment` |
 | §8 Manifest | Final deliverables list with output paths, hashes, reviewer verdicts |
 
-**Plan Mode** (orchestrator) reads an approved spec / TD and emits a `task.md` draft. **Execute Mode** reads an approved `task.md` and runs the batch. See the [orchestrator references](../.claude/ibm-i-workflow-orchestrator/references/):
+**Plan Mode** (orchestrator) reads an approved spec / TD and emits a `task.md` draft. **Execute Mode** reads an approved `task.md` and runs the batch. See the [orchestrator references](../agent-skills/ibm-i-workflow-orchestrator/references/):
 
 - `task-md-template.md` — canonical structure, mode dictionary, status dictionary, placeholder rules, parallel safety rules
 - `task-md-execution-protocol.md` — preconditions, topological scheduler, gate evaluation, TBD handling, idempotent resume
 
-Five worked samples are in the [orchestrator examples](../.claude/ibm-i-workflow-orchestrator/examples/).
+Five worked samples are in the [orchestrator examples](../agent-skills/ibm-i-workflow-orchestrator/examples/).
 
 ### Plan Mode Entry Shapes
 
@@ -97,7 +97,7 @@ Five worked samples are in the [orchestrator examples](../.claude/ibm-i-workflow
 
 ## Installation
 
-Choose complete skill folders from the [Agent Skills directory](../.claude/), including references and templates, and install them according to your company-approved Agent tool's requirements. Verify skill discovery, tool invocation and approval behavior in that tool before use. The legacy regression harness backend requires separate adaptation to approved internal tooling. The directory contents are:
+Choose complete skill folders from the [Agent Skills directory](../agent-skills/), including references and templates, and install them according to your company-approved Agent tool's requirements. Verify skill discovery, tool invocation and approval behavior in that tool before use. The legacy regression harness backend requires separate adaptation to approved internal tooling. The directory contents are:
 
 ```
 Agent Skills directory (linked above)

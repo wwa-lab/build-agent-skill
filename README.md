@@ -52,7 +52,7 @@ IBM i 是首个深入实践场景，当前提供 16 个领域 Skills 和合成 P
 M1 Planning -> M2 Estimation -> M3 Discovery -> [M4 Build] -> M5 Testing -> M6 Deployment -> M7 Maintenance
 ```
 
-仓库当前提供 **16 个 IBM i Agent Skills**（见[技能目录](.claude/)），覆盖两条互相衔接的交付链：
+仓库当前提供 **16 个 IBM i Agent Skills**（见[技能目录](agent-skills/)），覆盖两条互相衔接的交付链：
 
 - **Program Chain：** 需求/设计证据 -> Program Spec -> RPGLE/CLLE 源码 -> 编译预检查 -> 代码评审 -> 单元测试计划 -> SQL/CL 测试脚手架。
 - **File Chain：** 技术设计/文件需求 -> 带 Markdown + JSON 双层输出的 File Spec -> PF/LF/PRTF/DSPF DDS 源码 -> DDS 评审。
@@ -118,7 +118,7 @@ M4 Build 的核心不是“自动生成一切”，而是让每一步都有清�
 ## 快速开始
 
 1. 克隆本仓库。
-2. 从[技能目录](.claude/)选择所需 Skill，将其完整目录（含 `SKILL.md`、引用与模板）按公司批准的 Agent 工具要求安装；也可以先把本仓库作为技能参考工作区。不同工具的技能发现、工具调用和批准机制需要分别核对，当前不保证直接复制即可运行。
+2. 从[技能目录](agent-skills/)选择所需 Skill，将其完整目录（含 `SKILL.md`、引用与模板）按公司批准的 Agent 工具要求安装；也可以先把本仓库作为技能参考工作区。不同工具的技能发现、工具调用和批准机制需要分别核对，当前不保证直接复制即可运行。
 3. 根据手头已有的材料选择入口：
 
 ```text
@@ -156,7 +156,7 @@ M3 Discovery evidence
 
 ## 目录概览
 
-[Agent Skills 技能目录](.claude/)包含 16 个技能及其引用、模板、示例与回归脚本；其他材料如下：
+[Agent Skills 技能目录](agent-skills/)包含 16 个技能及其引用、模板、示例与回归脚本；其他材料如下：
 
 ```text
 docs/assets/                              # 项目价值图、技能协作图与架构图
@@ -180,17 +180,17 @@ OpenCode_IBMi_Skill_Family.pptx           # 已有演示材料
 - [Pitch 与 Demo Story](docs/atlas-engineering-delivery-hub-build-pitch.md)
 - [贡献指南](CONTRIBUTING.md)
 - [原始完整技能参考](docs/full-reference-readme.md)
-- [Workflow Orchestrator Skill](.claude/ibm-i-workflow-orchestrator/SKILL.md)
-- [Task.md Template](.claude/ibm-i-workflow-orchestrator/references/task-md-template.md)
-- [Task.md Execution Protocol](.claude/ibm-i-workflow-orchestrator/references/task-md-execution-protocol.md)
+- [Workflow Orchestrator Skill](agent-skills/ibm-i-workflow-orchestrator/SKILL.md)
+- [Task.md Template](agent-skills/ibm-i-workflow-orchestrator/references/task-md-template.md)
+- [Task.md Execution Protocol](agent-skills/ibm-i-workflow-orchestrator/references/task-md-execution-protocol.md)
 
 ## 验证与测试脚本
 
 三个技能包含半自动测试脚本：
 
-- [DDS 生成回归脚本](.claude/ibm-i-dds-generator/tests/runner.sh)：31 个 DDS 用例。
-- [代码生成回归脚本](.claude/ibm-i-code-generator/tests/runner.sh)：8 个代码生成用例。
-- [测试脚手架回归脚本](.claude/ibm-i-test-scaffold/tests/runner.sh)：6 个测试脚手架用例。
+- [DDS 生成回归脚本](agent-skills/ibm-i-dds-generator/tests/runner.sh)：31 个 DDS 用例。
+- [代码生成回归脚本](agent-skills/ibm-i-code-generator/tests/runner.sh)：8 个代码生成用例。
+- [测试脚手架回归脚本](agent-skills/ibm-i-test-scaffold/tests/runner.sh)：6 个测试脚手架用例。
 
 这些历史回归脚本通过特定外部 Agent CLI 生成内容，再用结构规则检查输出。当前执行器尚未适配公司内部环境，不应直接作为内部运行入口；需先改接公司批准的 Agent 工具并验证认证、调用和输出处理。完整运行会消耗模型调用。
 

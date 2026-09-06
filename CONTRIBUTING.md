@@ -24,7 +24,7 @@ Good contributors include:
 
 ## Skill And Tool Extension Areas
 
-When changing skill behavior, edit the relevant `SKILL.md` in the [skill directory](.claude/) and keep the skill's lane narrow:
+When changing skill behavior, edit the relevant `SKILL.md` in the [skill directory](agent-skills/) and keep the skill's lane narrow:
 
 - Generation skills should generate their intended artifact only.
 - Review skills should review and report findings, not rewrite artifacts.
@@ -55,7 +55,7 @@ Use [docs/cases/case-template.md](docs/cases/case-template.md) for each new case
 
 Real cases must have permission to share and use anonymized material. State what was replaced, omitted or reconstructed and how that limits reproducibility. A case may provide approved excerpts or aggregate evidence without including original production source or customer data. Keep synthetic and real origins explicit, and do not treat a real origin as proof of successful validation.
 
-Preserve imported snapshots and file hashes. Put later runs or revised artifacts in separate versioned locations. Keep one live [skill library](.claude/) rather than copying skills into every case. Record case findings separately from completed upstream fixes.
+Preserve imported snapshots and file hashes. Put later runs or revised artifacts in separate versioned locations. Keep one live [skill library](agent-skills/) rather than copying skills into every case. Record case findings separately from completed upstream fixes.
 
 ## Testing And Validation Expectations
 
@@ -67,7 +67,7 @@ git diff --check
 
 For Markdown-heavy changes, check relative links. A simple local script is acceptable as long as it ignores external URLs and generated binary assets.
 
-For skill behavior changes, inspect the nearest existing harness in the [skill directory](.claude/). From that directory, list or preview its cases:
+For skill behavior changes, inspect the nearest existing harness in the [skill directory](agent-skills/). From that directory, list or preview its cases:
 
 ```bash
 ibm-i-dds-generator/tests/runner.sh --list

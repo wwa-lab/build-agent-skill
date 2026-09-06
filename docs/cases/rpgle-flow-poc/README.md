@@ -90,7 +90,7 @@ python3 docs/cases/rpgle-flow-poc/snapshot/tools/prepare_benchmark.py --check
 - `snapshot/` 实际收录来源提交的 `docs/`、`src/`、`tools/`、`benchmark/`、README 和上游技能清单／许可。克隆当前仓库即可读取完整案例及复核材料，无需再克隆来源项目。
 - [provenance.json](provenance.json)记录每个文件的来源路径、来源 SHA-256、纳入后的 SHA-256 和适配说明。
 - 只适配了快照 README 的导航，以及静态检查器的仓库布局检查：历史 `.agent` 副本校验改为本案例完整性校验；原有业务、格式、契约和追踪检查保留。源文档、源码、评分材料及冻结包保持原字节。
-- 没有复制 16 个技能或来源仓库的 AGENTS.md。历史文档中的 `.agent` 指来源项目布局；本仓库继续以根目录 `.claude/` 为技能维护入口。
+- 没有复制 16 个技能或来源仓库的 AGENTS.md。历史文档中的 `.agent` 指来源项目布局；本仓库继续以根目录 `agent-skills/` 为技能维护入口。
 - 来源项目的阶段报告保持历史原文，个别“下一阶段”描述反映写作时状态。当前案例状态以本页及对应证据为准，不回写历史记录。
 - 后续真实案例独立加入[案例库](../README.md)，使用[统一模板](../case-template.md)。本合成案例不改名为真实案例，不用新 Skills 重生成后覆盖旧证据。
 - 保留[来源项目的许可说明](snapshot/README.md#许可)和[上游技能许可副本](snapshot/provenance/UPSTREAM-LICENSE)；技能许可副本不自动为来源项目新增案例材料指定许可证。

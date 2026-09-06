@@ -41,7 +41,7 @@ M1 Planning -> M2 Estimation -> M3 Discovery -> [M4 Build] -> M5 Testing -> M6 D
 | Mini sample | [docs/samples/atlas-build-tool-mini-output/](samples/atlas-build-tool-mini-output/) | Sanitized representative input/output package. |
 | Delivery cases | [docs/cases/README.md](cases/README.md) | Case registry and template for synthetic and anonymized real delivery cases. |
 | Complete POC | [RPGLE Flow POC](cases/rpgle-flow-poc/README.md) | Pinned requirements, design, 8 program specs, 24 file specs, 35 source files, static evidence and frozen benchmark kit. |
-| Skills | [Agent Skills](../.claude/) | The 16 Agent Skills that implement the workflow surface. |
+| Skills | [Agent Skills](../agent-skills/) | The 16 Agent Skills that implement the workflow surface. |
 
 ## Actual Capabilities Delivered
 
@@ -70,4 +70,4 @@ M1 Planning -> M2 Estimation -> M3 Discovery -> [M4 Build] -> M5 Testing -> M6 D
 3. Demo: follow BR-06 through the [RPGLE Flow POC](cases/rpgle-flow-poc/README.md), including its source and correction records.
 4. Result: inspect the static evidence and distinguish it from pending effort, rework, compilation and business-execution measurements.
 5. Use the [case template](cases/case-template.md) to plan the next real-case comparison.
-6. Consult the [lifecycle diagram](assets/atlas-build-lifecycle.mmd), [internal workflow](assets/atlas-build-internal-workflow.mmd) and [Workflow Orchestrator Skill](../.claude/ibm-i-workflow-orchestrator/SKILL.md) as technical backup. The POC is not evidence that the entire orchestrated workflow was executed.
+6. Consult the [lifecycle diagram](assets/atlas-build-lifecycle.mmd), [internal workflow](assets/atlas-build-internal-workflow.mmd) and [Workflow Orchestrator Skill](../agent-skills/ibm-i-workflow-orchestrator/SKILL.md) as technical backup. The POC is not evidence that the entire orchestrated workflow was executed.

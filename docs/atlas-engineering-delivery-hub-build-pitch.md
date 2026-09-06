@@ -59,7 +59,7 @@ IBM i 是方法的首个实践锚点。其文件布局、参数顺序、固定�
 
 目标程序、现有源码、文件来源、规则和预期行为已明确的小型增强，可以通过 Mini Requirement 进入 Program Spec，随后生成并评审。新程序、影响不清或需求有争议的工作仍需要完整规格链。短路径保留实现规格与质量检查。
 
-依据：[Orchestrator 的 Fast-Path](../.claude/ibm-i-workflow-orchestrator/SKILL.md)、[Mini Requirement 模板](../.claude/ibm-i-workflow-orchestrator/references/mini-requirement-template.md)。
+依据：[Orchestrator 的 Fast-Path](../agent-skills/ibm-i-workflow-orchestrator/SKILL.md)、[Mini Requirement 模板](../agent-skills/ibm-i-workflow-orchestrator/references/mini-requirement-template.md)。
 
 **价值逻辑：** 已知内容减少重复整理，必要上下文仍进入实现依据。短路径规则已经存在，其实际节省时间尚未对比测量。
 
@@ -67,7 +67,7 @@ IBM i 是方法的首个实践锚点。其文件布局、参数顺序、固定�
 
 在首个 IBM i 实现中，旧代码理解与影响分析提供变更背景；Program Spec 描述处理步骤；File Spec 同时提供可阅读文档与 JSON 契约；参考源码提供 fixed-format 布局、命名、分隔和异常处理惯例。生成与评审各有明确职责。
 
-依据：[源码风格规则](../.claude/ibm-i-code-generator/references/source-style-profile.md)、[Program / File Spec 引用模型](../.claude/ibm-i-file-spec/references/interop-model.md)、[POC 共享契约](cases/rpgle-flow-poc/snapshot/docs/specifications/shared-contract.md)。
+依据：[源码风格规则](../agent-skills/ibm-i-code-generator/references/source-style-profile.md)、[Program / File Spec 引用模型](../agent-skills/ibm-i-file-spec/references/interop-model.md)、[POC 共享契约](cases/rpgle-flow-poc/snapshot/docs/specifications/shared-contract.md)。
 
 **价值逻辑：** 将资深开发者每次需要口头补充的约定变成可审阅、可复用的工作材料。当前已形成这些规则与契约；它们对整理和返工成本的改善仍待测量。
 
@@ -75,7 +75,7 @@ IBM i 是方法的首个实践锚点。其文件布局、参数顺序、固定�
 
 BR 编号贯穿规格和源码定位；程序与文件通过稳定引用衔接；生成之后使用评审规则和检查工具核对。未确认内容标记为 TBD，关键审批、阻塞和后续交接由编排协议表达。
 
-依据：[task.md 执行协议](../.claude/ibm-i-workflow-orchestrator/references/task-md-execution-protocol.md)、[POC 追踪记录](cases/rpgle-flow-poc/snapshot/docs/source/static-checks.json)、[POC 检查与修正](cases/rpgle-flow-poc/snapshot/docs/source/validation-report.md)。
+依据：[task.md 执行协议](../agent-skills/ibm-i-workflow-orchestrator/references/task-md-execution-protocol.md)、[POC 追踪记录](cases/rpgle-flow-poc/snapshot/docs/source/static-checks.json)、[POC 检查与修正](cases/rpgle-flow-poc/snapshot/docs/source/validation-report.md)。
 
 **价值逻辑：** 评审可以沿着规则、步骤、源码和发现检查实现依据。POC 提供了实际产物与静态检查；编排门禁目前有文本协议，不能据此声称全部停点均由独立运行系统强制执行，或 POC 已跑完自动编排。
 
@@ -83,7 +83,7 @@ BR 编号贯穿规格和源码定位；程序与文件通过稳定引用衔接�
 
 项目的差异化主张是将企业约束贯穿 SDD 交付，并通过领域案例检验三项机制的组合：**适合维护工作的入口、可复用的领域规则、随产物交付的检查证据。** SDD、Skills 和评审本身不是本项目发明的技术；当前没有竞品对照试验，不使用“行业首创”“唯一方案”或“已优于所有通用 Agent”等说法。
 
-通用能力维护在 [Agent Skills 技能目录](../.claude/)，案例保存实际应用与发现。POC 专用静态检查器目前仍含业务对象和约束，通用化及问题反馈是后续改进，不能作为已交付的通用检查平台宣传。
+通用能力维护在 [Agent Skills 技能目录](../agent-skills/)，案例保存实际应用与发现。POC 专用静态检查器目前仍含业务对象和约束，通用化及问题反馈是后续改进，不能作为已交付的通用检查平台宣传。
 
 ## 3. Result — 现在有什么结果和收益？
 

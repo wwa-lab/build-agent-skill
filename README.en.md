@@ -52,7 +52,7 @@ This repository is the **M4 Build tool** within Atlas Engineering Delivery Hub /
 M1 Planning -> M2 Estimation -> M3 Discovery -> [M4 Build] -> M5 Testing -> M6 Deployment -> M7 Maintenance
 ```
 
-The repo currently delivers **16 IBM i Agent Skills** in the [skill directory](.claude/). The skills cover two connected delivery chains:
+The repo currently delivers **16 IBM i Agent Skills** in the [skill directory](agent-skills/). The skills cover two connected delivery chains:
 
 - **Program Chain:** requirements/design evidence -> Program Spec -> RPGLE/CLLE source -> compile precheck -> code review -> unit test plan -> SQL/CL test scaffold.
 - **File Chain:** technical design/file requirements -> File Spec with Markdown + JSON -> DDS source for PF/LF/PRTF/DSPF -> DDS review.
@@ -118,7 +118,7 @@ See the architecture visuals:
 ## Quick Start
 
 1. Clone the repository.
-2. Select skills from the [skill directory](.claude/) and install each complete folder, including `SKILL.md`, references and templates, according to your company-approved Agent tool's requirements. Alternatively, use this repository as a reference workspace. Skill discovery, tool calls and approval behavior require tool-specific verification; copying folders alone does not guarantee compatibility.
+2. Select skills from the [skill directory](agent-skills/) and install each complete folder, including `SKILL.md`, references and templates, according to your company-approved Agent tool's requirements. Alternatively, use this repository as a reference workspace. Skill discovery, tool calls and approval behavior require tool-specific verification; copying folders alone does not guarantee compatibility.
 3. Start with the artifact you already have:
 
 ```text
@@ -156,7 +156,7 @@ For a complete artifact set, follow the [RPGLE Flow POC demo path](docs/cases/rp
 
 ## Directory Overview
 
-The [Agent Skills directory](.claude/) contains 16 skills with references, templates, examples and regression harnesses. Other materials include:
+The [Agent Skills directory](agent-skills/) contains 16 skills with references, templates, examples and regression harnesses. Other materials include:
 
 ```text
 docs/assets/                              # Value, skill workflow and architecture visuals
@@ -180,17 +180,17 @@ OpenCode_IBMi_Skill_Family.pptx           # Existing presentation asset
 - [Pitch and demo story](docs/atlas-engineering-delivery-hub-build-pitch.md)
 - [Contribution guide](CONTRIBUTING.md)
 - [Original full skill reference](docs/full-reference-readme.md)
-- [Workflow orchestrator skill](.claude/ibm-i-workflow-orchestrator/SKILL.md)
-- [Task.md template](.claude/ibm-i-workflow-orchestrator/references/task-md-template.md)
-- [Task.md execution protocol](.claude/ibm-i-workflow-orchestrator/references/task-md-execution-protocol.md)
+- [Workflow orchestrator skill](agent-skills/ibm-i-workflow-orchestrator/SKILL.md)
+- [Task.md template](agent-skills/ibm-i-workflow-orchestrator/references/task-md-template.md)
+- [Task.md execution protocol](agent-skills/ibm-i-workflow-orchestrator/references/task-md-execution-protocol.md)
 
 ## Validation And Test Harnesses
 
 Three skills include semi-automated shell harnesses:
 
-- [DDS generation harness](.claude/ibm-i-dds-generator/tests/runner.sh) with 31 DDS cases.
-- [Code generation harness](.claude/ibm-i-code-generator/tests/runner.sh) with 8 code-generation cases.
-- [Test scaffold harness](.claude/ibm-i-test-scaffold/tests/runner.sh) with 6 scaffold cases.
+- [DDS generation harness](agent-skills/ibm-i-dds-generator/tests/runner.sh) with 31 DDS cases.
+- [Code generation harness](agent-skills/ibm-i-code-generator/tests/runner.sh) with 8 code-generation cases.
+- [Test scaffold harness](agent-skills/ibm-i-test-scaffold/tests/runner.sh) with 6 scaffold cases.
 
 These legacy harnesses invoke a specific external Agent CLI and then apply structural checks to generated output. Their execution backend has not been adapted to the internal company environment. Before internal use, replace it with a company-approved Agent tool and verify authentication, invocation and output handling. Full runs consume model calls.
 
