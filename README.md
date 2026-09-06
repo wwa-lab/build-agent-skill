@@ -52,7 +52,7 @@ IBM i 是首个深入实践场景，当前提供 16 个领域 Skills 和合成 P
 M1 Planning -> M2 Estimation -> M3 Discovery -> [M4 Build] -> M5 Testing -> M6 Deployment -> M7 Maintenance
 ```
 
-仓库当前提供 `.claude/` 下的 **16 个 IBM i Claude Code Skills**，覆盖两条互相衔接的交付链：
+仓库当前提供 **16 个 IBM i Agent Skills**（见[技能目录](.claude/)），覆盖两条互相衔接的交付链：
 
 - **Program Chain：** 需求/设计证据 -> Program Spec -> RPGLE/CLLE 源码 -> 编译预检查 -> 代码评审 -> 单元测试计划 -> SQL/CL 测试脚手架。
 - **File Chain：** 技术设计/文件需求 -> 带 Markdown + JSON 双层输出的 File Spec -> PF/LF/PRTF/DSPF DDS 源码 -> DDS 评审。
@@ -118,7 +118,7 @@ M4 Build 的核心不是“自动生成一切”，而是让每一步都有清�
 ## 快速开始
 
 1. 克隆本仓库。
-2. 将 `.claude/` 复制到使用 Claude Code Skills 的 IBM i 交付仓库中，或者把本仓库作为技能参考工作区。
+2. 从[技能目录](.claude/)选择所需 Skill，将其完整目录（含 `SKILL.md`、引用与模板）按公司批准的 Agent 工具要求安装；也可以先把本仓库作为技能参考工作区。不同工具的技能发现、工具调用和批准机制需要分别核对，当前不保证直接复制即可运行。
 3. 根据手头已有的材料选择入口：
 
 ```text
@@ -156,9 +156,10 @@ M3 Discovery evidence
 
 ## 目录概览
 
+[Agent Skills 技能目录](.claude/)包含 16 个技能及其引用、模板、示例与回归脚本；其他材料如下：
+
 ```text
-.claude/                                  # 16 个 IBM i Claude Code Skills
-docs/assets/                              # Mermaid 架构和设计图
+docs/assets/                              # 项目价值图、技能协作图与架构图
 docs/cases/                               # 交付案例、证据与后续案例模板
 docs/cases/rpgle-flow-poc/                 # 合成 POC 的固定产物与评测包
 docs/samples/atlas-build-tool-mini-output/ # 脱敏示例包
@@ -187,11 +188,11 @@ OpenCode_IBMi_Skill_Family.pptx           # 已有演示材料
 
 三个技能包含半自动测试脚本：
 
-- `.claude/ibm-i-dds-generator/tests/runner.sh`：31 个 DDS 用例。
-- `.claude/ibm-i-code-generator/tests/runner.sh`：8 个代码生成用例。
-- `.claude/ibm-i-test-scaffold/tests/runner.sh`：6 个测试脚手架用例。
+- [DDS 生成回归脚本](.claude/ibm-i-dds-generator/tests/runner.sh)：31 个 DDS 用例。
+- [代码生成回归脚本](.claude/ibm-i-code-generator/tests/runner.sh)：8 个代码生成用例。
+- [测试脚手架回归脚本](.claude/ibm-i-test-scaffold/tests/runner.sh)：6 个测试脚手架用例。
 
-这些脚本会调用 `claude` CLI 生成内容，再用结构规则检查输出。它们适合做 Skill 行为回归测试，但需要已认证的 Claude CLI，并且会消耗模型调用。
+这些历史回归脚本通过特定外部 Agent CLI 生成内容，再用结构规则检查输出。当前执行器尚未适配公司内部环境，不应直接作为内部运行入口；需先改接公司批准的 Agent 工具并验证认证、调用和输出处理。完整运行会消耗模型调用。
 
 已收录 POC 另有本地复核工具，仅需 Python 3.9+，不调用模型：
 
@@ -214,7 +215,7 @@ python3 docs/cases/rpgle-flow-poc/snapshot/tools/prepare_benchmark.py --check
 - 扩展 Orchestrator 的 `task.md` 计划和 TD-driven 批处理测试覆盖。
 - 如果团队统一 Mermaid 渲染方式，补充 SVG/PNG 图表版本。
 - 增加 compile-precheck、DDS review、code review 的边界案例示例。
-- 补充 Claude Code 与 Codex 混合使用时的迁移说明。
+- 补充 Agent Skills 在不同工具中的安装与迁移说明，并适配公司批准的回归执行器。
 
 更长期的想法：
 

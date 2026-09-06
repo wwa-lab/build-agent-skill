@@ -9,7 +9,7 @@ Good contributors include:
 - IBM i developers working with RPGLE, CLLE, DDS, DB2 for i, or legacy enhancement delivery.
 - Business analysts and solution architects who can improve spec structure and layer boundaries.
 - Testers who can improve UT plans, SQL/CL scaffolds, and validation examples.
-- AI workflow maintainers who can improve Claude Code skill packaging, prompts, and regression checks.
+- AI workflow maintainers who can improve Agent Skill packaging, prompts, and regression checks.
 - Documentation contributors who can make the M4 Build story easier to understand and reuse.
 
 ## Good First Contribution Areas
@@ -24,7 +24,7 @@ Good contributors include:
 
 ## Skill And Tool Extension Areas
 
-When changing skill behavior, edit the relevant `.claude/<skill-name>/SKILL.md` and keep the skill's lane narrow:
+When changing skill behavior, edit the relevant `SKILL.md` in the [skill directory](.claude/) and keep the skill's lane narrow:
 
 - Generation skills should generate their intended artifact only.
 - Review skills should review and report findings, not rewrite artifacts.
@@ -55,7 +55,7 @@ Use [docs/cases/case-template.md](docs/cases/case-template.md) for each new case
 
 Real cases must have permission to share and use anonymized material. State what was replaced, omitted or reconstructed and how that limits reproducibility. A case may provide approved excerpts or aggregate evidence without including original production source or customer data. Keep synthetic and real origins explicit, and do not treat a real origin as proof of successful validation.
 
-Preserve imported snapshots and file hashes. Put later runs or revised artifacts in separate versioned locations. Keep one live skill library under `.claude/` rather than copying skills into every case. Record case findings separately from completed upstream fixes.
+Preserve imported snapshots and file hashes. Put later runs or revised artifacts in separate versioned locations. Keep one live [skill library](.claude/) rather than copying skills into every case. Record case findings separately from completed upstream fixes.
 
 ## Testing And Validation Expectations
 
@@ -67,15 +67,15 @@ git diff --check
 
 For Markdown-heavy changes, check relative links. A simple local script is acceptable as long as it ignores external URLs and generated binary assets.
 
-For skill behavior changes, use the nearest existing harness:
+For skill behavior changes, inspect the nearest existing harness in the [skill directory](.claude/). From that directory, list or preview its cases:
 
 ```bash
-.claude/ibm-i-dds-generator/tests/runner.sh --list
-.claude/ibm-i-code-generator/tests/runner.sh --dry-run
-.claude/ibm-i-test-scaffold/tests/runner.sh --list
+ibm-i-dds-generator/tests/runner.sh --list
+ibm-i-code-generator/tests/runner.sh --dry-run
+ibm-i-test-scaffold/tests/runner.sh --list
 ```
 
-Running full harnesses may call the `claude` CLI and consume model calls. Include what you actually ran in the PR.
+Full harness runs depend on a specific external Agent CLI and consume model calls. The execution backend has not been adapted for internal company use; replace it with company-approved tooling and verify the integration before running internally. Include what you actually ran in the PR.
 
 ## Data Safety And Secrets
 

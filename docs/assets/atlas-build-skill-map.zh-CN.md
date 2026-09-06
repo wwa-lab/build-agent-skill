@@ -3,7 +3,7 @@
 - [PNG：README 展示版](atlas-build-skill-map.zh-CN.png)
 - [SVG：可缩放、可编辑源文件](atlas-build-skill-map.zh-CN.svg)
 - 视觉：红、白、黑；中文功能名称搭配英文 Skill 名称。
-- 范围：当前 `.claude/` 下的 16 个 Skills。节点上的 `data-skill` 保存完整技能标识；其余灰色节点表示输入或交接产物，不计入技能数量。
+- 范围：当前[技能目录](../../.claude/)下的 16 个 Agent Skills。节点上的 `data-skill` 保存完整技能标识；其余灰色节点表示输入或交接产物，不计入技能数量。
 
 ## 阅读方式
 
